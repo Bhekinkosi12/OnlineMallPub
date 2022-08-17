@@ -11,6 +11,10 @@
 <OnlineMall.Pages.ShopPages.ShopSplash Image="@Shop.Splash" ></OnlineMall.Pages.ShopPages.ShopSplash>
 
 
+
+
+
+
 @if(isAddingProduct){
     <AddProductPage @bind-SelectedShop="Shop" @bind-IsComplete="isCompleted" @bind-SelectedType="typeselectedProduct" @bind-Model="selectedProduct"   IsNew="@isNew"  ></AddProductPage>
 }
@@ -20,8 +24,37 @@ else{
 
  <div class="container">
     <div class="row">
-        <div class="col-12">
-            <MudImage Height="200" Fluid="true"  />
+        <div class="col-lg-4 offset-lg-4">
+            @if (isTypeUpdate)
+{
+ 
+    <div >
+        <div class="container">
+            <div class="row">
+
+                    <div class="col-8">
+                        <MudTextField T="string" @bind-Value="typeEditSelectedLink" Immediate="true" FullWidth="true" Variant="Variant.Outlined"  Label="@typeEditSelected"  ></MudTextField>
+
+                    </div>
+                    <div class="col-2">
+                        @if (!isTypeEditProcess)
+                       {
+                           
+                                        <MudIconButton Icon="@Icons.Material.Filled.Cancel" OnClick="OnTypeEditCancel"></MudIconButton>
+                                    }
+                                    else
+                                    {
+                                        <MudProgressCircular Color="Color.Success" Indeterminate="@isTypeEditProcess"  />
+                                    }
+                                </div>
+                    <div class="col-2">
+                        <MudIconButton Icon="@Icons.Material.Filled.Save" OnClick="@(() => OnTypeEdit(false,"",""))"></MudIconButton>
+                    </div>
+                </div>
+            </div>
+
+    </div>
+}
         </div>
         <div class="col-12">
             <div class="horizon" >
@@ -78,7 +111,7 @@ else{
                         </div>
                         
                         <div class="col-2">
-                            <MudIconButton Color="Color.Error" Icon="@Icons.Material.Filled.Delete" ></MudIconButton>
+                            <MudIconButton Color="Color.Error" Icon="@Icons.Material.Filled.Edit" OnClick="@(() => OnTypeEdit(true,i.ProductType,i.ProductTypeLink))" ></MudIconButton>
                         </div>
                          
                        
@@ -105,7 +138,7 @@ else{
                                 </div>
                                           </div>
                                           <div class="col-2">
-                                               <MudIconButton Icon="@Icons.Material.Outlined.Delete"></MudIconButton>
+                                               <MudIconButton Icon="@Icons.Material.Outlined.Delete" OnClick="@(() => OnDelete(i.ProductType,inner))"></MudIconButton>
                                           </div>
                                           <div class="col-2">
                                               <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(() => OnEditProduct(inner))"></MudIconButton>
@@ -146,6 +179,7 @@ else{
 
 
     bool isComShort = false;
+    bool isTypeUpdate = false;
 
     public bool isCompleted {
         get => isComShort;
@@ -156,6 +190,8 @@ else{
         }
     }
 
+    string typeEditSelected = "";
+    string typeEditSelectedLink = "";
     bool isAddingProduct = false;
     bool isProcess = false;
     bool isNew = true;
@@ -167,8 +203,111 @@ else{
         isSelected = false;
         await isSelectedChanged.InvokeAsync(isSelected);
         StateHasChanged();
+
     }
 
+    void OnTypeEditCancel()
+    {
+        isTypeUpdate = false;
+                StateHasChanged();
+    }
+
+    bool isTypeEditProcess = false;
+    async void OnTypeEdit(bool isTypeEdit,string type,string? link)
+    {
+        try
+        {
+
+
+            if (isTypeEdit)
+            {
+
+                if (link != null)
+                    typeEditSelectedLink = link;
+
+                typeEditSelected = type;
+                isTypeUpdate = isTypeEdit;
+                StateHasChanged();
+            }
+            else
+            {
+                isTypeEditProcess = true;
+                StateHasChanged();
+
+                var selected = Shop.PlatformShopModel.productTypes.FirstOrDefault(x => x.ProductType == typeEditSelected);
+
+                if (selected != null)
+                {
+                    var indexOF = Shop.PlatformShopModel.productTypes.IndexOf(selected);
+                    selected.ProductTypeLink = typeEditSelectedLink;
+
+                    Shop.PlatformShopModel.productTypes[indexOF] = selected;
+
+
+
+                    var response = await _shop.UpdateAsync(Shop);
+
+                    if (response)
+                    {
+                        isTypeUpdate = false;
+                        StateHasChanged();
+                        _snack.Add("Type Updated!", Severity.Success);
+                    }
+                    else
+                    {
+
+                    }
+
+
+                }
+
+
+                isTypeUpdate = isTypeEdit;
+                StateHasChanged();
+
+            }
+        }
+        catch
+        {
+            
+        }
+    }
+
+   
+
+
+    async void OnDelete(string tab,ProductM product)
+    {
+        try{
+            var selected = Shop.PlatformShopModel.productTypes.FirstOrDefault(x => x.ProductType == tab);
+
+            if (selected != null)
+            {
+
+
+                var indexO = Shop.PlatformShopModel.productTypes.IndexOf(selected);
+
+                selected.Products.Remove(product);
+                Shop.PlatformShopModel.productTypes[indexO] = selected;
+
+
+
+                var response = await _shop.UpdateAsync(Shop);
+
+                if (response)
+                {
+                    _snack.Add("Item Deleted", Severity.Success);
+                }
+                else{
+                    _snack.Add("Item Deleted Unsuccessful", Severity.Error);
+                }
+
+            }
+        }
+        catch{
+
+        }
+    }
 
 
 
