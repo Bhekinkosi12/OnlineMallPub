@@ -1,0 +1,629 @@
+﻿@page "/admin/list"
+
+@using OnlineMall.Services.ShopServices
+@using OnlineMall.Pages.ShopPages
+@inject ICrudService<ShopM> _shop
+@inject IAuthService _auth
+@inject ISnackbar _snack
+@inject NavigationManager _nav
+
+
+
+
+   
+
+
+
+
+@if(isItemSelected){
+    <ProductPage Product="@selectedProduct" @bind-isSelected="isItemSelected" />
+}
+else{
+
+@if (isSelected)
+{   <ShopProfile @bind-Shop="selectedShop" @bind-isSelected="isSelected" />
+    
+    
+}
+else{
+     <OnlineMall.Pages.Cart.ComparePop @bind-IsShow="isCompare" ></OnlineMall.Pages.Cart.ComparePop>
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="horizon">
+                <MudBlazor.MudButton Variant="Variant.Filled"  Size="Size.Medium" Link="shoppage">Food</MudBlazor.MudButton>
+                <MudBlazor.MudButton Variant="Variant.Filled"  Size="Size.Medium">Bread</MudBlazor.MudButton>
+                <MudBlazor.MudButton Variant="Variant.Filled"  Size="Size.Medium">Fridge</MudBlazor.MudButton>
+            </div>
+        </div>
+
+
+            @if(ShopListOBJ.Count != 0)
+            {
+                
+       @foreach(var i in ShopListOBJ){ 
+
+        <div class="col-12 shop__">
+            <MudBlazor.MudCard>
+                <MudCardHeader style="padding: 0 7px;">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-8">
+
+                    <MudText Align="Align.Start">@i.Name</MudText>
+                    
+                            </div>
+                            <div class="col-4">
+                                <MudIconButton Icon="@Icons.Material.Filled.OpenInFull" OnClick="@(() => OnOpen(i))" Color="Color.Dark" Variant="Variant.Outlined" > </MudIconButton>
+                            </div>
+                        </div>
+
+                    </div>
+                </MudCardHeader>
+                <MudCardContent>
+                   <div class="horizon" >
+                       @foreach (var item in i.AvailableSale){
+                       
+                           
+                      
+
+
+                        <MudCard Elevation="5" class="card__" style="position: relative;">
+                             <MudIconButton Icon="@Icons.Material.Outlined.Share" Style="position: absolute; margin: 0; top: 0px; right: 0px;"></MudIconButton>
+                           <MudCardMedia Height="200" style="width: 100%;" Image="@item.Image"  @onclick="@(() => OnOpenProduct(item))" >
+                              
+                           </MudCardMedia>
+                           <MudCardContent>
+                              <div>
+                                  <div class="container">
+                                      <div class="row">
+                                          <div class="col-8">
+                                               <div class="text__wrap">
+                                <MudText Typo="Typo.h6" class="text__">@item.Name</MudText>
+                                <MudText Typo="Typo.caption"  class="text__" >@item.Description</MudText>
+                                <MudText Typo="Typo.caption" Color="Color.Warning" >R @item.Price</MudText>
+                              
+                                </div>
+                                          </div>
+                                          <div class="col-2">
+                                               <MudIconButton class="nohoverborder" Icon="@Icons.Material.Outlined.AddShoppingCart" OnClick="@(() => OnAddCart(item))"></MudIconButton>
+                                          </div>
+                                          <div class="col-2">
+                                              <MudIconButton class="nohoverborder" Icon="@Icons.Material.Outlined.CompareArrows" OnClick="@(() => OnAddCompare(item))"></MudIconButton>
+                                          </div>
+                                      </div>
+                                  </div>
+
+                              </div>
+
+                           </MudCardContent>
+
+
+                       </MudCard>
+                    
+
+                       }
+
+                   </div>
+                </MudCardContent>
+               
+
+            </MudBlazor.MudCard>
+
+        </div>
+        
+                }
+
+
+            }
+            else 
+            {
+                
+                <div class="col-12 shop__">
+            <MudBlazor.MudCard>
+                <MudCardHeader>
+                    <MudSkeleton Animation="Animation.Pulse" Height="50px" SkeletonType="SkeletonType.Text" Width="100%" />
+                    
+                </MudCardHeader>
+                <MudCardContent>
+                   <div class="horizon" >
+                      
+                           
+                      
+
+
+                        <MudCard Elevation="5" class="card__">
+                           <MudSkeleton Animation="Animation.Pulse" Height="220px" SkeletonType="SkeletonType.Rectangle" Width="100%" />
+                           <MudCardContent>
+                              <div>
+                                  <div class="container">
+                                      <div class="row">
+                                          <div class="col-10">
+                                               <div class="text__wrap">
+                                <MudSkeleton Animation="Animation.Pulse" Height="50px" SkeletonType="SkeletonType.Text" Width="60%" />
+                                <MudSkeleton Animation="Animation.Pulse" Height="50px" SkeletonType="SkeletonType.Text" Width="100%" />
+                              
+                                </div>
+                                          </div>
+                                         
+                                          <div class="col-2">
+                                             <MudSkeleton Animation="Animation.Pulse" Height="100%" SkeletonType="SkeletonType.Circle" Width="100%" />
+                                          </div>
+                                      </div>
+                                  </div>
+
+                              </div>
+
+                           </MudCardContent>
+                       </MudCard>
+                     <MudCard Elevation="5" class="card__">
+                           <MudSkeleton Animation="Animation.Pulse" Height="220px" SkeletonType="SkeletonType.Rectangle" Width="100%" />
+                           <MudCardContent>
+                              <div>
+                                  <div class="container">
+                                      <div class="row">
+                                          <div class="col-10">
+                                               <div class="text__wrap">
+                                <MudSkeleton Animation="Animation.Pulse" Height="50px" SkeletonType="SkeletonType.Text" Width="60%" />
+                                <MudSkeleton Animation="Animation.Pulse" Height="50px" SkeletonType="SkeletonType.Text" Width="100%" />
+                              
+                                </div>
+                                          </div>
+                                         
+                                          <div class="col-2">
+                                             <MudSkeleton Animation="Animation.Pulse" Height="100%" SkeletonType="SkeletonType.Circle" Width="100%" />
+                                          </div>
+                                      </div>
+                                  </div>
+
+                              </div>
+
+                           </MudCardContent>
+                       </MudCard>
+                        <MudCard Elevation="5" class="card__">
+                           <MudSkeleton Animation="Animation.Pulse" Height="220px" SkeletonType="SkeletonType.Rectangle" Width="100%" />
+                           <MudCardContent>
+                              <div>
+                                  <div class="container">
+                                      <div class="row">
+                                          <div class="col-10">
+                                               <div class="text__wrap">
+                                <MudSkeleton Animation="Animation.Pulse" Height="50px" SkeletonType="SkeletonType.Text" Width="60%" />
+                                <MudSkeleton Animation="Animation.Pulse" Height="50px" SkeletonType="SkeletonType.Text" Width="100%" />
+                              
+                                </div>
+                                          </div>
+                                         
+                                          <div class="col-2">
+                                             <MudSkeleton Animation="Animation.Pulse" Height="100%" SkeletonType="SkeletonType.Circle" Width="100%" />
+                                          </div>
+                                      </div>
+                                  </div>
+
+                              </div>
+
+                           </MudCardContent>
+                       </MudCard>
+                        <MudCard Elevation="5" class="card__">
+                           <MudSkeleton Animation="Animation.Pulse" Height="220px" SkeletonType="SkeletonType.Rectangle" Width="100%" />
+                           <MudCardContent>
+                              <div>
+                                  <div class="container">
+                                      <div class="row">
+                                          <div class="col-10">
+                                               <div class="text__wrap">
+                                <MudSkeleton Animation="Animation.Pulse" Height="50px" SkeletonType="SkeletonType.Text" Width="60%" />
+                                <MudSkeleton Animation="Animation.Pulse" Height="50px" SkeletonType="SkeletonType.Text" Width="100%" />
+                              
+                                </div>
+                                          </div>
+                                         
+                                          <div class="col-2">
+                                             <MudSkeleton Animation="Animation.Pulse" Height="100%" SkeletonType="SkeletonType.Circle" Width="100%" />
+                                          </div>
+                                      </div>
+                                  </div>
+
+                              </div>
+
+                           </MudCardContent>
+                       </MudCard>
+
+
+                   </div>
+                </MudCardContent>
+                <MudCardActions>
+                      <MudSkeleton Animation="Animation.Pulse" Height="50px" SkeletonType="SkeletonType.Circle" Width="50px" />
+                </MudCardActions>
+                
+
+            </MudBlazor.MudCard>
+
+        </div>
+        
+          <div class="col-12 shop__">
+            <MudBlazor.MudCard>
+                <MudCardHeader>
+                    <MudSkeleton Animation="Animation.Pulse" Height="50px" SkeletonType="SkeletonType.Text" Width="100%" />
+                    
+                </MudCardHeader>
+                <MudCardContent>
+                   <div class="horizon" >
+                      
+                           
+                      
+
+
+                        <MudCard Elevation="5" class="card__">
+                           <MudSkeleton Animation="Animation.Pulse" Height="220px" SkeletonType="SkeletonType.Rectangle" Width="100%" />
+                           <MudCardContent>
+                              <div>
+                                  <div class="container">
+                                      <div class="row">
+                                          <div class="col-10">
+                                               <div class="text__wrap">
+                                <MudSkeleton Animation="Animation.Pulse" Height="50px" SkeletonType="SkeletonType.Text" Width="60%" />
+                                <MudSkeleton Animation="Animation.Pulse" Height="50px" SkeletonType="SkeletonType.Text" Width="100%" />
+                              
+                                </div>
+                                          </div>
+                                         
+                                          <div class="col-2">
+                                             <MudSkeleton Animation="Animation.Pulse" Height="100%" SkeletonType="SkeletonType.Circle" Width="100%" />
+                                          </div>
+                                      </div>
+                                  </div>
+
+                              </div>
+
+                           </MudCardContent>
+                       </MudCard>
+                     <MudCard Elevation="5" class="card__">
+                           <MudSkeleton Animation="Animation.Pulse" Height="220px" SkeletonType="SkeletonType.Rectangle" Width="100%" />
+                           <MudCardContent>
+                              <div>
+                                  <div class="container">
+                                      <div class="row">
+                                          <div class="col-10">
+                                               <div class="text__wrap">
+                                <MudSkeleton Animation="Animation.Pulse" Height="50px" SkeletonType="SkeletonType.Text" Width="60%" />
+                                <MudSkeleton Animation="Animation.Pulse" Height="50px" SkeletonType="SkeletonType.Text" Width="100%" />
+                              
+                                </div>
+                                          </div>
+                                         
+                                          <div class="col-2">
+                                             <MudSkeleton Animation="Animation.Pulse" Height="100%" SkeletonType="SkeletonType.Circle" Width="100%" />
+                                          </div>
+                                      </div>
+                                  </div>
+
+                              </div>
+
+                           </MudCardContent>
+                       </MudCard>
+                        <MudCard Elevation="5" class="card__">
+                           <MudSkeleton Animation="Animation.Pulse" Height="220px" SkeletonType="SkeletonType.Rectangle" Width="100%" />
+                           <MudCardContent>
+                              <div>
+                                  <div class="container">
+                                      <div class="row">
+                                          <div class="col-10">
+                                               <div class="text__wrap">
+                                <MudSkeleton Animation="Animation.Pulse" Height="50px" SkeletonType="SkeletonType.Text" Width="60%" />
+                                <MudSkeleton Animation="Animation.Pulse" Height="50px" SkeletonType="SkeletonType.Text" Width="100%" />
+                              
+                                </div>
+                                          </div>
+                                         
+                                          <div class="col-2">
+                                             <MudSkeleton Animation="Animation.Pulse" Height="100%" SkeletonType="SkeletonType.Circle" Width="100%" />
+                                          </div>
+                                      </div>
+                                  </div>
+
+                              </div>
+
+                           </MudCardContent>
+                       </MudCard>
+                        <MudCard Elevation="5" class="card__">
+                           <MudSkeleton Animation="Animation.Pulse" Height="220px" SkeletonType="SkeletonType.Rectangle" Width="100%" />
+                           <MudCardContent>
+                              <div>
+                                  <div class="container">
+                                      <div class="row">
+                                          <div class="col-10">
+                                               <div class="text__wrap">
+                                <MudSkeleton Animation="Animation.Pulse" Height="50px" SkeletonType="SkeletonType.Text" Width="60%" />
+                                <MudSkeleton Animation="Animation.Pulse" Height="50px" SkeletonType="SkeletonType.Text" Width="100%" />
+                              
+                                </div>
+                                          </div>
+                                         
+                                          <div class="col-2">
+                                             <MudSkeleton Animation="Animation.Pulse" Height="100%" SkeletonType="SkeletonType.Circle" Width="100%" />
+                                          </div>
+                                      </div>
+                                  </div>
+
+                              </div>
+
+                           </MudCardContent>
+                       </MudCard>
+
+
+                   </div>
+                </MudCardContent>
+                <MudCardActions>
+                      <MudSkeleton Animation="Animation.Pulse" Height="50px" SkeletonType="SkeletonType.Circle" Width="50px" />
+                </MudCardActions>
+                
+
+            </MudBlazor.MudCard>
+
+        </div>
+          <div class="col-12 shop__">
+            <MudBlazor.MudCard>
+                <MudCardHeader>
+                    <MudSkeleton Animation="Animation.Pulse" Height="50px" SkeletonType="SkeletonType.Text" Width="100%" />
+                    
+                </MudCardHeader>
+                <MudCardContent>
+                   <div class="horizon" >
+                      
+                           
+                      
+
+
+                        <MudCard Elevation="5" class="card__">
+                           <MudSkeleton Animation="Animation.Pulse" Height="220px" SkeletonType="SkeletonType.Rectangle" Width="100%" />
+                           <MudCardContent>
+                              <div>
+                                  <div class="container">
+                                      <div class="row">
+                                          <div class="col-10">
+                                               <div class="text__wrap">
+                                <MudSkeleton Animation="Animation.Pulse" Height="50px" SkeletonType="SkeletonType.Text" Width="60%" />
+                                <MudSkeleton Animation="Animation.Pulse" Height="50px" SkeletonType="SkeletonType.Text" Width="100%" />
+                              
+                                </div>
+                                          </div>
+                                         
+                                          <div class="col-2">
+                                             <MudSkeleton Animation="Animation.Pulse" Height="100%" SkeletonType="SkeletonType.Circle" Width="100%" />
+                                          </div>
+                                      </div>
+                                  </div>
+
+                              </div>
+
+                           </MudCardContent>
+                       </MudCard>
+                     <MudCard Elevation="5" class="card__">
+                           <MudSkeleton Animation="Animation.Pulse" Height="220px" SkeletonType="SkeletonType.Rectangle" Width="100%" />
+                           <MudCardContent>
+                              <div>
+                                  <div class="container">
+                                      <div class="row">
+                                          <div class="col-10">
+                                               <div class="text__wrap">
+                                <MudSkeleton Animation="Animation.Pulse" Height="50px" SkeletonType="SkeletonType.Text" Width="60%" />
+                                <MudSkeleton Animation="Animation.Pulse" Height="50px" SkeletonType="SkeletonType.Text" Width="100%" />
+                              
+                                </div>
+                                          </div>
+                                         
+                                          <div class="col-2">
+                                             <MudSkeleton Animation="Animation.Pulse" Height="100%" SkeletonType="SkeletonType.Circle" Width="100%" />
+                                          </div>
+                                      </div>
+                                  </div>
+
+                              </div>
+
+                           </MudCardContent>
+                       </MudCard>
+                        <MudCard Elevation="5" class="card__">
+                           <MudSkeleton Animation="Animation.Pulse" Height="220px" SkeletonType="SkeletonType.Rectangle" Width="100%" />
+                           <MudCardContent>
+                              <div>
+                                  <div class="container">
+                                      <div class="row">
+                                          <div class="col-10">
+                                               <div class="text__wrap">
+                                <MudSkeleton Animation="Animation.Pulse" Height="50px" SkeletonType="SkeletonType.Text" Width="60%" />
+                                <MudSkeleton Animation="Animation.Pulse" Height="50px" SkeletonType="SkeletonType.Text" Width="100%" />
+                              
+                                </div>
+                                          </div>
+                                         
+                                          <div class="col-2">
+                                             <MudSkeleton Animation="Animation.Pulse" Height="100%" SkeletonType="SkeletonType.Circle" Width="100%" />
+                                          </div>
+                                      </div>
+                                  </div>
+
+                              </div>
+
+                           </MudCardContent>
+                       </MudCard>
+                        <MudCard Elevation="5" class="card__">
+                           <MudSkeleton Animation="Animation.Pulse" Height="220px" SkeletonType="SkeletonType.Rectangle" Width="100%" />
+                           <MudCardContent>
+                              <div>
+                                  <div class="container">
+                                      <div class="row">
+                                          <div class="col-10">
+                                               <div class="text__wrap">
+                                <MudSkeleton Animation="Animation.Pulse" Height="50px" SkeletonType="SkeletonType.Text" Width="60%" />
+                                <MudSkeleton Animation="Animation.Pulse" Height="50px" SkeletonType="SkeletonType.Text" Width="100%" />
+                              
+                                </div>
+                                          </div>
+                                         
+                                          <div class="col-2">
+                                             <MudSkeleton Animation="Animation.Pulse" Height="100%" SkeletonType="SkeletonType.Circle" Width="100%" />
+                                          </div>
+                                      </div>
+                                  </div>
+
+                              </div>
+
+                           </MudCardContent>
+                       </MudCard>
+
+
+                   </div>
+                </MudCardContent>
+                <MudCardActions>
+                      <MudSkeleton Animation="Animation.Pulse" Height="50px" SkeletonType="SkeletonType.Circle" Width="50px" />
+                </MudCardActions>
+                
+
+            </MudBlazor.MudCard>
+
+        </div>
+            }
+
+
+    </div>
+
+</div>
+
+
+
+
+}
+
+}
+@code {
+    List<ShopM> ShopListOBJ = new List<ShopM>();
+    ShopM selectedShop = new ShopM();
+    CompareDB compare = new CompareDB();
+    ProductM selectedProduct = new ProductM();
+
+    bool isSelected = false;
+    bool isItemSelected = false;
+    bool isCompare = false;
+
+
+    void OnShowCompare()
+    {
+        isCompare = true;
+        StateHasChanged();
+    }
+
+    protected async override void OnInitialized()
+    {
+
+        base.OnInitialized();
+        try{
+            
+
+
+            var lists = await _shop.GetAllAsync();
+
+            if(lists != null)
+            {
+                ShopListOBJ = lists;
+                // _snack.Add("items loaded!", Severity.Success);
+                StateHasChanged();
+
+            }
+        }
+        catch
+        {
+
+        }
+
+
+
+    }
+
+    void OnOpenProduct(ProductM product){
+        selectedProduct = product;
+        isItemSelected = true;
+        StateHasChanged();
+    }
+
+
+    void OnOpen(ShopM shopselect)
+    {
+
+        selectedShop = shopselect;
+        isSelected = true;
+        StateHasChanged();
+
+        //_nav.NavigateTo($"/shoppage/{shopselect.Id}",true);
+    }
+
+    async void OnAddCart(ProductM product)
+    {
+        var user = _auth.User;
+        if(user != null)
+        {
+            if(user.Carts.Count != 0){
+                var selectedDefaultType = user.Carts.FirstOrDefault(x => x.CartName == "Default");
+                if(selectedDefaultType != null)
+                {
+                    var indexOF = user.Carts.IndexOf(selectedDefaultType);
+                    if(indexOF != -1)
+                    {
+                        selectedDefaultType.ProductList.Add(product);
+                        user.Carts[indexOF] = selectedDefaultType;
+
+                    }
+
+
+                }
+
+
+            }
+            else
+            {
+                CartM newCart = new CartM()
+                {
+                   CartName = "Default",
+
+                };
+                newCart.ProductList.Add(product);
+                user.Carts.Add(newCart);
+            }
+
+
+            //Update 
+            var response = await _auth.UpDateUser(user);
+
+            if (response)
+            {
+                _snack.Add("Item Added ", Severity.Success);
+            }
+            else
+            {
+                _snack.Add("Item not added please Retry ", Severity.Warning);   
+            }
+
+        }
+        else
+        {
+            _nav.NavigateTo("/auth", true);
+        }
+    }
+
+    async void OnAddCompare(ProductM product)
+    {
+        if((await compare.GetAllAsync()).Count <= 2)
+        {
+            var item = await compare.CreateAsync(product);
+            if (item)
+            {
+                _snack.Add("Added to compare list!",Severity.Success);
+            }
+        }
+        else
+        {
+            _snack.Add("Reached compare free limit!",Severity.Warning);
+        }
+    }
+}
+

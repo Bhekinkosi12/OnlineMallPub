@@ -1,0 +1,155 @@
+﻿@page "/auth"
+
+@using OnlineMall.Models.Users
+@using System.ComponentModel.DataAnnotations
+@inject IAuthService _auth
+@inject ISnackbar _snack
+@inject NavigationManager _nav
+
+@if (isLogin)
+{
+    
+<div class="container">
+    <div class="row">
+        <div class="col-lg-4 offset-lg-4">
+         
+            <div class="card__log">
+                <div style="padding-top: 40px; height: 90px;">
+                    <MudText  Align="Align.Center"  Typo="Typo.h2" >Login</MudText>
+                </div>
+                <br />
+                <br />
+                <EditForm Model="@login" OnValidSubmit="OnValidSubmit">
+                    <DataAnnotationsValidator />
+                <MudTextField T="string" Variant="Variant.Outlined" For="@(() => login.Email)" @bind-Value="login.Email" FullWidth="true" Label="Email" ></MudTextField>
+                <br />
+
+                <MudTextField T="string" FullWidth="true" Variant="Variant.Outlined" For="@(() => login.Password)" @bind-Value="login.Password" Label="Password"  ></MudTextField>
+
+
+                 <div style="text-align: center; margin: 60px 0 0 0;">
+                 
+             <MudButton ButtonType="ButtonType.Submit"  Variant="Variant.Filled" Color="Color.Success" >Login</MudButton>
+
+             </div>
+             <div style="text-align: center; margin: 10px 0 0 0;">
+                     <MudButton Variant="Variant.Outlined" OnClick="@(() => OnToLogin(false))" Size="Size.Small" StartIcon="@Icons.Material.Outlined.PersonAdd" > Create Account </MudButton>
+                     </div>
+             
+                 <div style="text-align: center; margin: 0px 0 0 0;">
+                     <MudProgressCircular Color="Color.Success" Indeterminate="@isProcessSub"  />
+                     </div>
+             
+             </EditForm>
+
+            </div>
+
+        </div>
+    </div>
+
+    </div>
+
+
+}
+else
+{
+    
+   <div class="container">
+    <div class="row">
+        <div class="col-lg-4 offset-lg-4">
+         
+            <div class="card__log">
+                <div style="padding-top: 40px; height: 90px;">
+                    <MudText  Align="Align.Center"  Typo="Typo.h2" >Sign In</MudText>
+                </div>
+                <br />
+                <br />
+                <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+                    <MudTextField T="string" Variant="Variant.Outlined" For="@(() => model.Name)" @bind-Value="model.Name" FullWidth="true" Label="Prefered Name" ></MudTextField>
+                    <br />
+                <MudTextField T="string" Variant="Variant.Outlined" For="@(() => model.Email)" @bind-Value="model.Email" FullWidth="true" Label="Email" ></MudTextField>
+                <br />
+
+                <MudTextField T="string" FullWidth="true" For="@(() => model.Password)" @bind-Value="model.Password" Variant="Variant.Outlined" Label="Password" InputType="InputType.Password" ></MudTextField>
+                <MudTextField T="string" FullWidth="true" Variant="Variant.Outlined" For="@(() => model.RepeatPassword)" @bind-Value="model.RepeatPassword"  Label="Password Repeat" InputType="InputType.Password" ></MudTextField>
+
+
+                 <div style="text-align: center; margin: 60px 0 0 0;">
+                 <MudProgressCircular Color="Color.Success" Indeterminate="@isProcessSub"  />
+             <MudButton ButtonType="ButtonType.Submit"   Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Outlined.Send" >Create Account</MudButton>
+             </div>
+              <div style="text-align: center; margin: 10px 0 0 0;">
+                     <MudButton Variant="Variant.Outlined" OnClick="@(() => OnToLogin(true))" Size="Size.Small"  StartIcon="@Icons.Material.Outlined.Login" > Login </MudButton>
+                     </div>
+             </EditForm>
+
+            </div>
+
+        </div>
+    </div>
+
+    </div>
+}      
+@code {
+    bool isProcessSub = false;
+    bool isLogin = true;
+
+    UserM model = new UserM();
+    public LoginC login = new LoginC();
+
+
+    void OnToLogin(bool isToLogin)
+    {
+        isLogin = isToLogin;
+        StateHasChanged();
+
+    }
+
+    async void OnValidSubmit()
+    {
+        isProcessSub = true;
+        StateHasChanged();
+        if(isLogin){
+
+            var response = await _auth.Login(login.Email, login.Password);
+
+            if (response)
+            {
+                _snack.Add("Login In SuccessFull !", Severity.Success);
+                _nav.NavigateTo("/");
+            }
+            else
+            {
+                _snack.Add("Login In Failed !", Severity.Info);
+            }
+
+        }
+        else
+        {
+            var respo = await _auth.Signin(model.Email, model.Password, model.Name);
+
+            if (respo)
+            {
+                _snack.Add("Sign In SuccessFull !", Severity.Success);
+                _nav.NavigateTo("/user/profile");
+            }
+            else{
+                _snack.Add("Sign In Failed !", Severity.Info);
+            }
+        }
+    }
+
+
+
+    public class LoginC{
+
+        [Required]
+        [EmailAddress]
+        public string? Email { get; set; }
+        [Required]
+        
+        public string? Password { get; set; }
+
+   }
+
+}

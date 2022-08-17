@@ -1,0 +1,332 @@
+﻿@page "/shoppage"
+@page "/shoppage/id"
+@page "/shoppage/id/productid"
+
+@using OnlineMall.FirebaseDB
+@inject ISnackbar _snack
+@using OnlineMall.Pages.Profiles
+@using System.ComponentModel.DataAnnotations
+@inject ICrudService<ShopM> _shop
+@inject IAuthService _auth
+@inject NavigationManager _nav
+
+
+<OnlineMall.Pages.ShopPages.ShopSplash Image="@Shop.Splash" ></OnlineMall.Pages.ShopPages.ShopSplash>
+
+
+@if(isItemSelected){
+   
+     <ProductPage Product="@selectedProduct" @bind-isSelected="isItemSelected" />
+}
+else{
+
+
+
+ <div class="container">
+
+     @if (Shop.IntroVideo != null)
+    {
+        
+    
+     <div class="row">
+         <div class="col-12" style="height: 200px;">
+             <video src="@Shop.IntroVideo" autoplay style="height: 100%; width: 100%;" ></video>
+         </div>
+
+
+     </div>
+
+    }
+
+    <div class="row">
+        
+      
+        
+        @foreach(var i in Shop.PlatformShopModel.productTypes)
+        {
+            
+        
+
+        <div class="col-12">
+            <div class="field_header">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-10">
+                            <MudText  Typo="Typo.h6"  >@i.ProductType</MudText>
+                        </div>
+                        
+                        <div class="col-2">
+                                    @if (i.ProductTypeLink != null)
+                                    {
+
+                                        <MudIconButton Color="Color.Surface" Icon="@Icons.Material.Filled.Webhook" Link="@i.ProductTypeLink" ></MudIconButton>
+                                    }
+                                </div>
+                         
+                       
+                    </div>
+                </div>
+
+            </div>
+            <div class="horizon" >
+                    @foreach(var inner in i.Products)
+                    {
+                        
+                    
+                   <MudCard Elevation="5" class="card__" style="width: 300px;">
+                           <MudCardMedia Height="200" style="width: 100%;" Image="@inner.Image" @onclick="@(() => OnOpenProduct(inner))"></MudCardMedia>
+                           <MudCardContent>
+                              <div>
+                                  <div class="container">
+                                      <div class="row">
+                                          <div class="col-8">
+                                               <div class="text__wrap">
+                                <MudText Typo="Typo.h6" class="text__">@inner.Name</MudText>
+                                <MudText Typo="Typo.caption"   class="text__" >@inner.Description</MudText>
+                              
+                                </div>
+                                          </div>
+                                        <div class="col-2">
+                                               <MudIconButton class="nohoverborder" Icon="@Icons.Material.Outlined.AddShoppingCart" OnClick="@(() => OnAddCart(inner))"></MudIconButton>
+                                          </div>
+                                          <div class="col-2">
+                                              <MudIconButton class="nohoverborder" Icon="@Icons.Material.Outlined.CompareArrows" OnClick="@(() => OnAddCompare(inner))"></MudIconButton>
+                                          </div>
+                                      </div>
+                                  </div>
+
+                              </div>
+
+                           </MudCardContent>
+                       </MudCard>
+                    }
+
+                </div>
+        </div>
+        }
+       
+
+    </div>
+
+</div>
+
+<MudFab  Style="position: fixed; margin: 30px; z-index: 9999999999999; bottom: 0; right: 0;" OnClick="OnDone" Color="Color.Dark" Icon="@Icons.Material.Outlined.ArrowBack" />
+}
+
+
+
+@code {
+    [Parameter]
+    public string? Productid {get; set;}
+
+    [Parameter]
+    public string? Id {get; set;}
+
+
+    [Parameter]
+    public ShopM? Shop {get; set;}
+    [Parameter]
+    public EventCallback<ShopM> ShopChanged { get; set; }
+
+
+    [Parameter]
+    public bool isSelected { get; set; }
+    [Parameter]
+    public EventCallback<bool> isSelectedChanged { get; set; }
+
+
+
+    bool isComShort = false;
+
+    public bool isCompleted {
+        get => isComShort;
+        set
+        {
+            isComShort = value;
+            OnIsComplete(value);
+        }
+    }
+
+
+    bool isItemSelected = false;
+    bool isProcess = false;
+    bool isNew = true;
+    CompareDB compare = new CompareDB();
+
+    ProductM selectedProduct = new ProductM();
+     
+   
+    
+
+     void OnOpenProduct(ProductM product){
+        selectedProduct = product;
+        isItemSelected = true;
+        StateHasChanged();
+    }
+
+
+
+
+    async void OnDone()
+    {
+        isSelected = false;
+        await isSelectedChanged.InvokeAsync(isSelected);
+        StateHasChanged();
+    }
+
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+
+            /*
+        try{
+
+        if(_auth.User == null)
+        {
+        _nav.NavigateTo("auth");
+         }
+
+         var token = _auth.User.Email;
+         if(token != null){
+
+
+         var store = await _shop.GetStoreByEmail(token);
+
+                 if(store != null)
+         {
+         Shop = store; 
+         }
+         else
+         {
+         _snack.Add("Failed to Load!",Severity.Info);
+         }
+
+         }
+
+         }
+         catch
+         {
+         _snack.Add("Failed to Load!",Severity.Info);
+        }
+    */
+
+    }
+
+  
+
+
+    void OnSelectProduct()
+    {
+        isNew = false;
+        if(Shop != null)
+        {
+
+            isItemSelected = true;
+        }
+        StateHasChanged();
+    }
+
+
+
+    void OnIsComplete(bool isComp)
+    {
+        isItemSelected = isComp;
+        StateHasChanged();
+    }
+
+    async void OnAddCart(ProductM product)
+    {
+        var user = _auth.User;
+        if(user != null)
+        {
+            if(user.Carts.Count != 0){
+                var selectedDefaultType = user.Carts.FirstOrDefault(x => x.CartName == "Default");
+                if(selectedDefaultType != null)
+                {
+                    var indexOF = user.Carts.IndexOf(selectedDefaultType);
+                    if(indexOF != -1)
+                    {
+                        selectedDefaultType.ProductList.Add(product);
+
+                    }
+                }
+            }
+            else
+            {
+                CartM newCart = new CartM()
+                {
+                   CartName = "Default",
+
+                };
+                newCart.ProductList.Add(product);
+            }
+
+
+            //Update 
+            var response = await _auth.UpDateUser(user);
+
+            if (response)
+            {
+                _snack.Add("Item Added ", Severity.Success);
+            }
+            else
+            {
+                _snack.Add("Item not added please Retry ", Severity.Warning);   
+            }
+
+        }
+        else
+        {
+            _nav.NavigateTo("/auth", true);
+        }
+    }
+
+    async void OnAddCompare(ProductM product)
+    {
+        if((await compare.GetAllAsync()).Count < 2)
+        {
+            var item = await compare.CreateAsync(product);
+            if (item)
+            {
+                _snack.Add("Added to compare list!",Severity.Success);
+            }
+        }
+        else
+        {
+            _snack.Add("Reached compare Experimental limit!",Severity.Warning);
+        }
+    }
+
+
+
+
+
+
+
+    protected async override  void OnParametersSet()
+    {
+
+        try{
+            if(Id != null)
+            {
+                var items = await _shop.GetAllAsync();
+                var selected = items.FirstOrDefault(x => x.Id == int.Parse(Id));
+
+                if(selected != null)
+                {
+                    Shop = selected;
+                    StateHasChanged();
+                }
+            }
+        }
+        catch
+        {
+            
+        }
+
+    }
+
+
+}

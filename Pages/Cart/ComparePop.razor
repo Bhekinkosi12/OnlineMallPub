@@ -1,0 +1,137 @@
+﻿
+ <MudFab Style="position: fixed; margin: 30px; z-index: 9999999999999; bottom: 0; right: 0;" OnClick="@(() => OnIsShow(true))" Color="Color.Success"  Icon="@Icons.Material.Outlined.CompareArrows" />
+<div class="comparePage @_class" >
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+
+            
+                @if (list.Count != 0)
+               {
+                   
+                @foreach (var i in list)
+                {
+                    <div class="col-lg-3 col-md-4 col-sm-12">
+
+                    
+
+                 <MudCard Elevation="5" class="card__" style="position: relative; width: 300px;" >
+                             <MudIconButton Icon="@Icons.Material.Outlined.Share" Style="position: absolute; margin: 0px; top: 0px; right: 0px;"></MudIconButton>
+                           <MudCardMedia Height="200" style="width: 100%;" Image="@i.Image"   >
+                              
+                           </MudCardMedia>
+                           <MudCardContent>
+                              <div>
+                                  <div class="container">
+                                      <div class="row">
+                                          <div class="col-12">
+                                               <div class="text__wrap">
+                                <MudText Typo="Typo.h6" Align="Align.Center" class="text__">@i.Name</MudText>
+                               
+                                <MudText Typo="Typo.caption" Color="Color.Warning" >R @i.Price</MudText>
+                              
+                                </div>
+                                          </div>
+                                         
+                                      </div>
+                                  </div>
+
+                              </div>
+
+                           </MudCardContent>
+
+
+
+                       </MudCard>
+                       </div>
+                    }
+                }
+                else
+                {
+                    <div class="col-12">
+
+                    <MudText Align="Align.Center" Typo="Typo.h4">No Items On Compare List</MudText>
+                    </div>
+                }
+           
+            </div>
+
+        </div>
+
+    </div>
+    <MudFab  Style="position: fixed; margin: 30px; z-index: 9999999999999999; bottom: 0; right: 0;" OnClick="@(() => OnIsShow(false))" Icon="@Icons.Material.Outlined.HideSource" Color="Color.Dark"  >Hide</MudFab>
+     <MudFab  Style="position: fixed; margin: 30px; z-index: 999999999999999; bottom: 0; left: 0;" OnClick="OnClear" Icon="@Icons.Material.Outlined.ClearAll" Color="Color.Warning"  >Clear</MudFab>
+</div>
+
+
+@code {
+    List<ProductM> list = new List<ProductM>();
+    private bool isShow = false;
+    string _class = "dis";
+
+    [Parameter]
+    public bool IsShow { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> IsShowChanged { get; set; }
+
+    void OnIsShow(bool option)
+    {
+        if (option)
+        {
+            _class = "";
+
+        }
+        else
+        {
+            _class = "dis"; 
+        }
+        IsShow = option;
+        IsShowChanged.InvokeAsync(IsShow);
+
+        StateHasChanged();
+    }
+
+    void OnClear()
+    {
+        CompareDB _compare = new CompareDB();
+        _compare.Clear();
+        StateHasChanged();
+    }
+
+    protected async override void OnInitialized()
+    {
+
+        base.OnInitialized();
+        try{
+
+            CompareDB _compare = new CompareDB();
+            list = await _compare.GetAllAsync();
+
+        }
+        catch
+        {
+
+        }
+
+
+
+    }
+
+    protected async override void OnAfterRender(bool firstRender)
+    {
+        try{
+
+            CompareDB _compare = new CompareDB();
+            list = await _compare.GetAllAsync();
+        }
+        catch
+        {
+
+        }
+
+
+        base.OnAfterRender(firstRender);
+    }
+
+}

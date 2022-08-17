@@ -1,0 +1,31 @@
+﻿
+@using System.Threading.Tasks
+
+<div class="splashIMG @_class">
+    <img src="@Image" />
+</div>
+
+@code {
+
+    [Parameter]
+    public string? Image { get; set; }
+
+    string _class = "";
+
+
+    protected async override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        if(Image == null)
+        {
+            Image = "images/mzansi1.jpg";
+        }
+
+            await Task.Delay(3000);
+            _class = "dis";
+            StateHasChanged();
+        
+
+    }
+}

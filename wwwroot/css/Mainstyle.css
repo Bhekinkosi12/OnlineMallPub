@@ -1,0 +1,140 @@
+﻿body {
+}
+
+
+.horizon{
+    display: flex;
+  
+    overflow-inline: scroll;
+    overflow: scroll;
+   
+}
+
+.card__{
+   
+    
+    min-width: 280px;
+  
+    max-width: 320px;
+    margin:  10px 15px;
+   
+}
+
+.shop__{
+    margin-top: 20px;
+    position: relative;
+}
+.new{
+
+}
+
+
+.new::after{
+    content: 'new';
+    background-color: red;
+    position: absolute;
+    top: 0;
+    left: 90%;
+    height: 30px;
+    width: 100px;
+    border-radius: 0 0 20px 20px;
+    text-align: center;
+    color: #fff;
+    font-size: 23px;
+    font-family: cursive;
+    font-weight: 600;
+}
+.flex{
+    display: flex;
+}
+.he30{
+    height: 30px;
+}
+.he40 {
+    height: 40px;
+}
+.he200 {
+    height: 200px;
+    background-color: #ff0000;
+}
+.text__{
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.text__wrap{
+    overflow: hidden;
+}
+
+.dis{
+    visibility: hidden;
+    display: none;
+}
+
+.splashIMG{
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999999999999;
+}
+    .splashIMG img{
+        width: 100%;
+        height: 100%;
+    }
+
+
+    .m-t-20 {
+        margin-top: 20px;
+    }
+
+
+.card__log{
+    border: 2px solid #eee;
+    margin-top: 30px;
+    border-radius: 15px;
+    padding: 10px;
+    box-shadow: #0000ff 2px 2px 2px 2px;
+}
+
+
+
+.product_img{
+    min-height: 400px;
+    max-height: 1000px;
+}
+
+.nohoverborder{
+    border: none;
+}
+.nohoverborder:hover{
+    border: none;
+}
+
+
+.comparePage{
+    position: fixed;
+
+    top: 0;
+    left: 0;
+    
+    margin-bottom: 100px;
+    overflow-x: scroll;
+    z-index: 99999999999999990;
+
+}
+
+
+.dark{
+    background: #191919;
+}
+
+.container{
+    background-color: transparent;
+}
+
+.page{
+    height: 100vh;
+}

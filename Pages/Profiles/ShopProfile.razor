@@ -1,0 +1,393 @@
+﻿@page "/shop/profile" 
+ 
+@using OnlineMall.FirebaseDB
+@inject ISnackbar _snack
+@using System.ComponentModel.DataAnnotations
+@inject ICrudService<ShopM> _shop
+@inject IAuthService _auth
+@inject NavigationManager _nav
+
+
+<OnlineMall.Pages.ShopPages.ShopSplash Image="@Shop.Splash" ></OnlineMall.Pages.ShopPages.ShopSplash>
+
+
+@if(isAddingProduct){
+    <AddProductPage @bind-SelectedShop="Shop" @bind-IsComplete="isCompleted" @bind-SelectedType="typeselectedProduct" @bind-Model="selectedProduct"   IsNew="@isNew"  ></AddProductPage>
+}
+else{
+
+
+
+ <div class="container">
+    <div class="row">
+        <div class="col-12">
+            <MudImage Height="200" Fluid="true"  />
+        </div>
+        <div class="col-12">
+            <div class="horizon" >
+                <div style="margin-right: 10px;">
+                    <MudButton OnClick="OnAddProduct" Variant="Variant.Filled" Color="Color.Success" > <MudIcon Icon="@Icons.Material.Outlined.Add" /> Add Product</MudButton>
+                </div>
+                 <div style="margin-right: 10px;">
+                    <label style="box-shadow: 0 2px 7px #4caf50; display: inline-flex; width: 150px; justify-content: space-around; border-radius: 2em; color: white; border: 2px solid; cursor: pointer; align-items: center; padding: 8px 2px 6px 2px; background-color: #4caf50;" for="fileInput" >
+                   Splash <MudIcon Icon="@Icons.Filled.CloudUpload" > </MudIcon>
+                </label> 
+                <InputFile id="fileInput" OnChange="UploadF"  hidden multiple />
+                </div >
+
+                <div>
+                    <MudProgressCircular Color="Color.Success" Indeterminate="@isProcess"  />
+                </div>
+
+                  <div style="margin-right: 10px;">
+                    <label style="box-shadow: 0 2px 7px #4caf50; display: inline-flex; width: 150px; justify-content: space-around; border-radius: 2em; color: white; border: 2px solid; cursor: pointer; align-items: center; padding: 8px 2px 6px 2px; background-color: #4caf50;" for="fileIn" >
+                   Video <MudIcon Icon="@Icons.Filled.CloudUpload" > </MudIcon>
+                </label> 
+                <InputFile id="fileIn" OnChange="UploadVideo"  hidden multiple />
+                </div >
+
+                  <div style="margin-right: 10px;">
+                    <MudButton OnClick="ToggleVisibility" Variant="Variant.Filled" Color="Color.Success" > @if (Shop.isConfirmed)
+                                                                                                {
+                                                                                                    <MudIcon Icon="@Icons.Material.Outlined.VisibilityOff" /> <span>Hide</span>
+
+                                                                                                }else{ 
+                                                                                                    <MudIcon Icon="@Icons.Material.Outlined.Visibility" /> <span>Show</span>
+                                                                                                 
+                                                                                                }
+                                                                                                
+                                                                                            </MudButton> 
+                </div>
+                 <div style="margin-right: 10px;">
+                    <MudButton OnClick="OnDone" Variant="Variant.Filled" Color="Color.Success" > <MudIcon Icon="@Icons.Material.Outlined.Output" /> Done</MudButton>
+                </div>
+            </div>
+        </div>
+        
+        @foreach(var i in Shop.PlatformShopModel.productTypes)
+        {
+            
+        
+
+        <div class="col-12">
+            <div class="field_header">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-10">
+                            <MudText  Typo="Typo.h3"  >@i.ProductType</MudText>
+                        </div>
+                        
+                        <div class="col-2">
+                            <MudIconButton Color="Color.Error" Icon="@Icons.Material.Filled.Delete" ></MudIconButton>
+                        </div>
+                         
+                       
+                    </div>
+                </div>
+
+            </div>
+            <div class="horizon" >
+                    @foreach(var inner in i.Products)
+                    {
+                        
+                    
+                   <MudCard Elevation="5" class="card__">
+                           <MudCardMedia Height="200" style="width: 100%;" Image="@inner.Image"></MudCardMedia>
+                           <MudCardContent>
+                              <div>
+                                  <div class="container">
+                                      <div class="row">
+                                          <div class="col-8">
+                                               <div class="text__wrap">
+                                <MudText Typo="Typo.h6" class="text__">@inner.Name</MudText>
+                                <MudText Typo="Typo.caption"   class="text__" >@inner.Description</MudText>
+                              
+                                </div>
+                                          </div>
+                                          <div class="col-2">
+                                               <MudIconButton Icon="@Icons.Material.Outlined.Delete"></MudIconButton>
+                                          </div>
+                                          <div class="col-2">
+                                              <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(() => OnEditProduct(inner))"></MudIconButton>
+                                          </div>
+                                      </div>
+                                  </div>
+
+                              </div>
+
+                           </MudCardContent>
+                       </MudCard>
+                    }
+
+                </div>
+        </div>
+        }
+       
+
+    </div>
+
+</div>
+
+<MudFab Style="position: fixed; margin: 30px; z-index: 9999999999999; bottom: 0; right: 0;" OnClick="OnDone" Color="Color.Dark" Icon="@Icons.Material.Outlined.ArrowBack" />
+}
+@code {
+
+    [Parameter]
+    public ShopM? Shop {get; set;}
+    [Parameter]
+    public EventCallback<ShopM> ShopChanged { get; set; }
+
+
+    [Parameter]
+    public bool isSelected { get; set; }
+    [Parameter]
+    public EventCallback<bool> isSelectedChanged { get; set; }
+
+
+
+    bool isComShort = false;
+
+    public bool isCompleted {
+        get => isComShort;
+        set
+        {
+            isComShort = value;
+            OnIsComplete(value);
+        }
+    }
+
+    bool isAddingProduct = false;
+    bool isProcess = false;
+    bool isNew = true;
+    string typeselectedProduct = "";
+    ProductM selectedProduct = new ProductM();
+
+    async void OnDone()
+    {
+        isSelected = false;
+        await isSelectedChanged.InvokeAsync(isSelected);
+        StateHasChanged();
+    }
+
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+
+                /*
+    try{
+
+    if(_auth.User == null)
+    {
+    _nav.NavigateTo("auth");
+        }
+
+    var token = _auth.User.Email;
+    if(token != null){
+
+
+        var store = await _shop.GetStoreByEmail(token);
+
+        if(store != null)
+                {
+            Shop = store; 
+        }
+        else
+    {
+            _snack.Add("Failed to Load!",Severity.Info);
+    }
+
+    }
+
+    }
+        catch
+     {
+     _snack.Add("Failed to Load!",Severity.Info);
+        }
+        */
+
+    }
+
+    async void ToggleVisibility()
+    {
+        Shop.isConfirmed = !Shop.isConfirmed;
+        var respondURL = await _shop.UpdateAsync(Shop);
+        if(respondURL){
+
+            _snack.Add($"Visibility updated status: {Shop.isConfirmed}", Severity.Success);
+
+            StateHasChanged();
+        }
+
+    }
+
+
+    void OnSelectProduct()
+    {
+        isNew = false;
+        if(Shop != null)
+        {
+
+            isAddingProduct = true;
+        }
+        StateHasChanged();
+    }
+
+    void OnAddProduct(){
+        if(Shop == null)
+        {
+            Shop = new ShopM();
+        }
+
+        selectedProduct = new ProductM();
+        isAddingProduct = true;
+        StateHasChanged();
+    }
+
+    void OnEditProduct(ProductM _shop){
+
+        isNew = false;
+        selectedProduct = _shop;
+        isAddingProduct = true;
+        StateHasChanged();
+    }
+
+    void OnIsComplete(bool isComp)
+    {
+        isAddingProduct = isComp;
+        StateHasChanged();
+    }
+
+
+    private async void UploadF(InputFileChangeEventArgs e) {
+        StorageDB fstor = new StorageDB();
+        isProcess = true;
+        StateHasChanged();
+
+        var _file = e.GetMultipleFiles();
+
+        try
+        {
+
+
+
+            if (_file != null)
+            {
+
+
+
+                var ite = _file[0].OpenReadStream();
+
+                var st = await fstor.AddStoreStream(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), ite);
+
+
+
+                if (st != null)
+                {
+                    Shop.Splash = st;
+                    _snack.Add("Updating Image...!", Severity.Info);
+                    var respondURL = await _shop.UpdateAsync(Shop);
+                    if(respondURL){
+
+                        _snack.Add("Splash Image Updated!", Severity.Success);
+                   
+                        StateHasChanged();
+                    }
+                }
+                else {
+                    _snack.Add("Please ReLoad The Image!", Severity.Error);
+                }
+
+
+
+
+            }
+            else
+            {
+                _snack.Add("Invalid Selection!", Severity.Error);
+            }
+
+        }
+        catch
+        {
+            _snack.Add("Unexpected Error!", Severity.Error);
+        }
+        finally
+        {
+            isProcess = false;
+            StateHasChanged();
+        }
+
+
+
+    }
+
+
+
+
+     private async void UploadVideo(InputFileChangeEventArgs e) {
+        StorageDB fstor = new StorageDB();
+        isProcess = true;
+        StateHasChanged();
+
+        var _file = e.GetMultipleFiles();
+
+        try
+        {
+
+
+
+            if (_file != null)
+            {
+
+
+
+                var ite = _file[0].OpenReadStream();
+
+                var st = await fstor.AddStoreStream(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), ite);
+
+
+
+                if (st != null)
+                {
+                    Shop.IntroVideo = st;
+                    _snack.Add("Updating Video...!", Severity.Info);
+                    var respondURL = await _shop.UpdateAsync(Shop);
+                    if(respondURL){
+
+                        _snack.Add("Video Updated!", Severity.Success);
+                   
+                        StateHasChanged();
+                    }
+                }
+                else {
+                    _snack.Add("Please ReLoad The Video!", Severity.Error);
+                }
+
+
+
+
+            }
+            else
+            {
+                _snack.Add("Invalid Selection!", Severity.Error);
+            }
+
+        }
+        catch
+        {
+            _snack.Add("Unexpected Error!", Severity.Error);
+        }
+        finally
+        {
+            isProcess = false;
+            StateHasChanged();
+        }
+
+
+
+    }
+
+
+}

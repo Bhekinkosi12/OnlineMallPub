@@ -1,0 +1,319 @@
+﻿@page "/search"
+
+@using OnlineMall.Services.ShopServices
+@using OnlineMall.Pages.Profiles
+@inject ICrudService<ShopM> _shop
+@inject IAuthService _auth
+@inject ISnackbar _snack
+@inject IProductService _product
+@inject NavigationManager _nav
+
+
+@if(isItemSelected){
+    <ProductPage Product="@selectedProduct" @bind-isSelected="isItemSelected" />
+}
+else{
+
+<div class="container">
+    <div class="row">
+       
+
+        <div class="col-lg-4 offset-lg-4" style="margin-bottom: 30px;" >
+            
+            <MudAutocomplete T="string" Placeholder="Search" @bind-Value="SearchValue" CloseIcon="@Icons.Material.Filled.Clear" CoerceValue="true" OnClearButtonClick="OnClear"  SearchFunc="@SearchAutoFill" OnAdornmentClick="OnSearch"  AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Secondary"  ></MudAutocomplete>
+        </div>
+
+
+        @if (!isLoading)
+        {
+            
+        
+
+            @foreach(var item in ProductsList)
+            {
+                 <div class="col-lg-3 col-md-4 col-sm-6">
+
+                 <MudCard Elevation="5" class="card__" style="position: relative;">
+                             <MudIconButton Icon="@Icons.Material.Outlined.Share" Style="position: absolute; margin: 0; top: 0px; right: 0px;"></MudIconButton>
+                           <MudCardMedia Height="200" style="width: 100%;" Image="@item.Image"  @onclick="@(() => OnOpenProduct(item))"  >
+                              
+                           </MudCardMedia>
+                           <MudCardContent>
+                              <div>
+                                  <div class="container">
+                                      <div class="row">
+                                          <div class="col-8">
+                                               <div class="text__wrap">
+                                <MudText Typo="Typo.h6" class="text__">@item.Name</MudText>
+                                <MudText Typo="Typo.caption"  class="text__" >@item.Description</MudText>
+                                <MudText Typo="Typo.caption" Color="Color.Warning" >R @item.Price</MudText>
+                              
+                                </div>
+                                          </div>
+                                          <div class="col-2">
+                                               <MudIconButton class="nohoverborder" Icon="@Icons.Material.Outlined.AddShoppingCart" OnClick="@(() => OnAddCart(item))"></MudIconButton>
+                                          </div>
+                                          <div class="col-2">
+                                              <MudIconButton class="nohoverborder" Icon="@Icons.Material.Outlined.CompareArrows" OnClick="@(() => OnAddCompare(item))"></MudIconButton>
+                                          </div>
+                                      </div>
+                                  </div>
+
+                              </div>
+
+                           </MudCardContent>
+
+
+                       </MudCard>
+                </div>
+
+            }
+        }
+        else
+        {
+            @for(int num = 10; num != 0; num--)
+            {
+                 <MudCard Elevation="5" class="card__">
+                           <MudSkeleton Animation="Animation.Pulse" Height="220px" SkeletonType="SkeletonType.Rectangle" Width="100%" />
+                           <MudCardContent>
+                              <div>
+                                  <div class="container">
+                                      <div class="row">
+                                          <div class="col-10">
+                                               <div class="text__wrap">
+                                <MudSkeleton Animation="Animation.Pulse" Height="50px" SkeletonType="SkeletonType.Text" Width="60%" />
+                                <MudSkeleton Animation="Animation.Pulse" Height="50px" SkeletonType="SkeletonType.Text" Width="100%" />
+                              
+                                </div>
+                                          </div>
+                                         
+                                          <div class="col-2">
+                                             <MudSkeleton Animation="Animation.Pulse" Height="100%" SkeletonType="SkeletonType.Circle" Width="100%" />
+                                          </div>
+                                      </div>
+                                  </div>
+
+                              </div>
+
+                           </MudCardContent>
+                       </MudCard>
+            }
+        }
+
+
+    </div>
+
+</div>
+
+
+}
+@code {
+    List<ProductM> ProductsList = new List<ProductM>();
+    List<ProductM> ProductsListDefalt = new List<ProductM>();
+    private List<string> NameSuggests = new List<string>();
+    string SearchValue = "";
+    bool isLoading = true;
+
+
+
+    ProductM selectedProduct = new ProductM();
+    bool isItemSelected = false;
+
+
+    void OnOpenProduct(ProductM product){
+        selectedProduct = product;
+        isItemSelected = true;
+        StateHasChanged();
+    }
+
+
+
+
+
+
+
+
+    async void OnAddCart(ProductM product)
+    {
+        var user = _auth.User;
+        if(user != null)
+        {
+            if(user.Carts.Count != 0){
+                var selectedDefaultType = user.Carts.FirstOrDefault(x => x.CartName == "Default");
+                if(selectedDefaultType != null)
+                {
+                    var indexOF = user.Carts.IndexOf(selectedDefaultType);
+                    if(indexOF != -1)
+                    {
+                        selectedDefaultType.ProductList.Add(product);
+                        user.Carts[indexOF] = selectedDefaultType;
+
+                    }
+
+
+                }
+
+
+            }
+            else
+            {
+                CartM newCart = new CartM()
+                {
+                   CartName = "Default",
+
+                };
+                newCart.ProductList.Add(product);
+                user.Carts.Add(newCart);
+            }
+
+
+            //Update 
+            var response = await _auth.UpDateUser(user);
+
+            if (response)
+            {
+                _snack.Add("Item Added ", Severity.Success);
+            }
+            else
+            {
+                _snack.Add("Item not added please Retry ", Severity.Warning);   
+            }
+
+        }
+        else
+        {
+            _nav.NavigateTo("/auth", true);
+        }
+    }
+
+    async void OnAddCompare(ProductM product)
+    {
+        CompareDB compare = new CompareDB();
+        if((await compare.GetAllAsync()).Count <= 2)
+        {
+            var item = await compare.CreateAsync(product);
+            if (item)
+            {
+                _snack.Add("Added to compare list!",Severity.Success);
+            }
+        }
+        else
+        {
+            _snack.Add("Reached compare Experimental limit!",Severity.Warning);
+        }
+    }
+
+
+    protected async override void OnInitialized()
+    {
+
+        try{
+
+            var response = await _product.GetAllProduct();
+
+            foreach(var i in response)
+            {
+                NameSuggests.Add(i.Name);
+            }
+
+            ProductsList = response;
+            ProductsListDefalt = response;
+            isLoading = false;
+            StateHasChanged();
+
+        }
+        catch
+        {
+
+        }
+
+        base.OnInitialized();
+    }
+
+
+
+    private async Task<IEnumerable<string>> SearchAutoFill(string value)
+    {
+        List<string> littleSEO = new List<string>();
+        if (string.IsNullOrEmpty(value))
+        {
+            return NameSuggests;
+        }
+
+
+
+        var selectedItems = NameSuggests.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+        if(selectedItems != null)
+        {
+            return selectedItems;
+        }
+        else
+        {
+            return littleSEO;
+        }
+
+        
+
+
+    }
+
+
+    private void OnSearch()
+    {
+        try
+        {
+
+
+            if (!string.IsNullOrEmpty(SearchValue))
+            {
+                isLoading = true;
+                StateHasChanged();
+
+                List<ProductM> filter = new List<ProductM>();
+
+                foreach (var i in ProductsListDefalt)
+                {
+                    if (!i.Name.Contains(SearchValue, StringComparison.InvariantCultureIgnoreCase) || (i.SearchGuess.Where(x => x.Name.Contains(SearchValue, StringComparison.InvariantCultureIgnoreCase))).ToList().Count == 0)
+                    {
+                        filter.Add(i);
+                    }
+                }
+                var ordered = filter.OrderBy(x => x.Name.Contains(SearchValue)).ToList();
+                if(ordered != null)
+                {
+                    ordered.Reverse();
+                    ProductsList = ordered;
+                }
+                else
+                {
+                    
+                ProductsList = filter;
+                }
+
+            }
+        }
+        catch{
+
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+
+
+
+    void OnClear()
+    {
+        ProductsList.Clear();
+        ProductsList = ProductsListDefalt;
+
+        StateHasChanged();
+    }
+
+
+
+
+}

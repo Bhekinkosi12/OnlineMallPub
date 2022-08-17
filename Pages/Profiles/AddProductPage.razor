@@ -1,0 +1,433 @@
+﻿@page "/addproduct"
+
+@using OnlineMall.FirebaseDB
+@inject ISnackbar _snack
+@using System.ComponentModel.DataAnnotations
+@inject ICrudService<ShopM> _shop
+@inject IProductService _product
+
+
+
+
+
+
+<div class="container isDismiss" >
+    <div class="row">
+        <div class="col-lg-4 offset-lg-4">
+
+            <div class="he200 m-t-20">
+                
+                <img src="@_Image" style="height: 100%; width: 100%;" />
+            </div>
+
+             <h3 style="font-family: cursive; text-align: center; margin-top: 10px;">Select Image</h3>
+
+             <div style="text-align: center; margin-top: 20px;">
+                <label style="box-shadow: 0 2px 7px #4caf50; display: inline-flex; width: 150px; justify-content: space-around; border-radius: 2em; color: white; border: 2px solid; cursor: pointer; align-items: center; padding: 16px; background-color: #4caf50;" for="fileInput" >
+                   Upload <MudIcon Icon="@Icons.Filled.CloudUpload" > </MudIcon>
+                </label>
+                <InputFile id="fileInput" OnChange="UploadF"  hidden multiple />
+            </div>
+           <div style="text-align: center;">
+                            <MudProgressCircular Color="Color.Success" Indeterminate="@isProcess"  />
+                                     </div>
+                                     <br />
+
+                                     
+                                     <MudTextField T="string" @bind-Value="_type" Label="Product Shelf"  AutoFocus="true" FullWidth="true" Variant="Variant.Outlined" ></MudTextField>
+
+            <div class="horizon">
+               @foreach(var i in SelectedShop.PlatformShopModel.productTypes){
+                   <div>
+                   <MudButton OnClick="@(() => OnSetType(i.ProductType))">
+                       @i.ProductType
+                   </MudButton>
+                   </div>
+               }
+               </div>
+               
+               <br />
+
+               
+
+                                     <div>
+                                         <div class="container">
+                                             <div class="row">
+                                                 <div class="col-10">
+                                                      <MudTextField T="string" @bind-Value="_SEO" Label="SEO"  FullWidth="true" Variant="Variant.Outlined" ></MudTextField>
+                                                 </div>
+                                                 <div class="col-2" style="padding-top: 10px;">
+                                                     <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="@(() => OnAddSEO(_SEO))" ></MudIconButton>
+                                                 </div>
+                                             </div>
+
+                                         </div>
+                                     </div>
+
+
+
+               
+
+            <div class="horizon">
+             @foreach(var i in listSuggest){
+                   <div style="margin-left: 9px;">
+                   <MudButton IconColor="Color.Error" Variant="Variant.Outlined" Color="Color.Dark" StartIcon="@Icons.Material.Filled.Delete" OnClick="@(() => OnDeleteSEO(i))" >
+                       @i.Name
+                   </MudButton>
+                   </div>
+               
+               }
+
+               </div>
+               <br />
+
+         <EditForm Model="@Model" OnValidSubmit="OnValidSubmit"   >
+             <DataAnnotationsValidator />
+             <MudTextField T="string" Label="Product Name" @bind-Value="Model.Name"  For="@(() => Model.Name)" AdornmentColor="Color.Primary"  FullWidth="true" Variant="Variant.Outlined"  ></MudTextField>
+             <br />
+             <MudTextField T="string" Label="Product Description" @bind-Value="Model.Description"  For="@(() => Model.Description)" AdornmentColor="Color.Primary"  FullWidth="true" Variant="Variant.Outlined"  ></MudTextField>
+             <br />
+             <MudTextField T="double"   @bind-Value="Model.Price" Label="Price" For="@(() => Model.Price)" AdornmentColor="Color.Primary" FullWidth="true" Variant="Variant.Outlined"  ></MudTextField>
+              <br />
+             
+             <MudTextField T="string"   @bind-Value="Model.Link" Label="Product Link" For="@(() => Model.Link)" AdornmentColor="Color.Primary" FullWidth="true" Variant="Variant.Outlined"  ></MudTextField>
+             
+             <br />
+             <MudSwitch @bind-Checked="isLimited" Label="Is Product Limited Edition ?" Color="Color.Success" />
+             <br />
+             @if(isLimited){
+
+              <MudTextField T="double"   @bind-Value="Model.LimitedNumber" Label="Price" For="@(() => Model.LimitedNumber)" AdornmentColor="Color.Primary" FullWidth="true" Variant="Variant.Outlined"  ></MudTextField>
+             }
+             <br />
+             <MudSwitch @bind-Checked="isSale" Label="Is Product on Sale ?" Color="Color.Success" />
+
+             @if(isSale){
+                 <br />
+                 <MudTextField T="double"   @bind-Value="Model.SalePrice" Label="Price" For="@(() => Model.SalePrice)" AdornmentColor="Color.Primary" FullWidth="true" Variant="Variant.Outlined"  ></MudTextField>
+              <br />
+             <!-- <MudDatePicker  Label="Last Day Of Sale?" Editable="true"  bind-Date="Model.LastSaleDay" /> -->
+              <br />
+              <br />
+              <br />
+              <br />
+             }
+
+
+             <div style="text-align: center; margin: 30px 0;">
+                 <MudProgressCircular Color="Color.Success" Indeterminate="@isProcessSub"  />
+             <MudButton ButtonType="ButtonType.Submit"  Variant="Variant.Filled" Color="Color.Success" >Submit</MudButton>
+             </div>
+         </EditForm>
+
+           
+
+        </div>
+    </div>
+
+</div>
+
+@code {
+
+    public string _Image = "";
+    string _type = "";
+    string _SEO = "";
+    bool isSale = false;
+    bool isLimited = false;
+    bool isProcess = false;
+    bool isProcessSub = false;
+    bool isPopup = true;
+    string isDismiss = "";
+    StorageDB fstor = new StorageDB();
+    List<NameM> listSuggest = new List<NameM>();
+
+    [Parameter]
+    public ShopM? SelectedShop { get; set; }
+    [Parameter]
+    public EventCallback<ShopM> SelectedShopChanged { get; set; }
+
+    [Parameter]
+    public ProductM? Model { get; set; }
+    [Parameter]
+    public EventCallback<ProductM>  ModelChanged { get; set; }
+
+    [Parameter]
+    public bool IsNew { get; set; } = true;
+
+    [Parameter]
+    public string? SelectedType { get; set; }
+    [Parameter]
+    public EventCallback<string> SelectedTypeChanged { get; set; }
+
+    [Parameter]
+    public bool IsComplete { get; set; } = false;
+    [Parameter]
+    public EventCallback<bool> IsCompleteChanged { get; set; } 
+
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        Model = new ProductM();
+        IsComplete = false;
+
+    }
+
+    protected override void OnParametersSet()
+    {
+        try{
+
+
+            if(Model != null)
+            {
+                _Image = Model.Image;
+                if(Model.SearchGuess.Count != 0)
+                {
+                    listSuggest = Model.SearchGuess;
+                    StateHasChanged();
+                }
+            }
+
+        }
+        catch (Exception ex)
+        {
+            _snack.Add($"UnExpected Error",Severity.Error);
+        }
+
+        base.OnParametersSet();
+    }
+
+
+    private async void UploadF(InputFileChangeEventArgs e) {
+
+        isProcess = true;
+        StateHasChanged();
+
+        var _file = e.GetMultipleFiles();
+
+        try
+        {
+
+
+
+            if (_file != null)
+            {
+
+
+
+                var ite = _file[0].OpenReadStream();
+
+                var st = await fstor.AddStoreStream(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), ite);
+
+
+
+                if (st != null)
+                {
+
+
+                    _snack.Add("Photo Added To Database!", Severity.Success);
+                    _Image = st;
+                    StateHasChanged();
+                }
+                else {
+                    _snack.Add("Please ReLoad The Image!", Severity.Error);
+                }
+
+
+
+
+            }
+            else
+            {
+                _snack.Add("Invalid Selection!", Severity.Error);
+            }
+
+        }
+        catch
+        {
+            _snack.Add("Unexpected Error!", Severity.Error);
+        }
+        finally
+        {
+            isProcess = false;
+            StateHasChanged();
+        }
+
+
+
+    }
+
+
+
+
+
+    async void OnValidSubmit(EditContext context){
+
+        isProcessSub = true;
+        StateHasChanged();
+        Model.Image = _Image;
+
+        Model.ShopID = SelectedShop.Id;
+        Model.ShopName = SelectedShop.Name;
+        Model.SearchGuess = listSuggest;
+
+
+        try
+        {
+            var selectedType = SelectedShop.PlatformShopModel.productTypes.FirstOrDefault(x => x.ProductType == _type);
+
+            if (isLimited || isSale)
+            {
+                Model.IsLimited = isLimited;
+                Model.IsSale = isSale;
+
+                SelectedShop.AvailableSale.Add(Model);
+            }
+
+
+
+
+
+            if(selectedType != null)
+            {
+
+
+
+
+                int selectedTypeIndex = SelectedShop.PlatformShopModel.productTypes.IndexOf(selectedType);
+
+                if(selectedTypeIndex != -1)
+                {
+                    if(IsNew){
+
+                        SelectedShop.PlatformShopModel.productTypes[selectedTypeIndex].Products.Add(Model);
+
+                        var response = await _product.CreateProductAsync(Model);
+
+
+
+                    }
+                    else
+                    {
+                        var resProduct = SelectedShop.PlatformShopModel.productTypes[selectedTypeIndex].Products.FirstOrDefault(x => x.Id == Model.Id);
+
+                        if(resProduct != null)
+                        {
+                            var response = await _product.UpdateProductAsync(Model);
+                            var ite = SelectedShop.PlatformShopModel.productTypes[selectedTypeIndex].Products.IndexOf(resProduct);
+                            if(ite != -1)
+                            {
+                                SelectedShop.PlatformShopModel.productTypes[selectedTypeIndex].Products[ite] = Model;
+                            }
+
+                        }
+
+                    }
+
+
+
+                    var reaspond = await _shop.UpdateAsync(SelectedShop);
+
+                    // Database update
+
+                    if (reaspond)
+                    {
+                        IsComplete =  true;
+                        await IsCompleteChanged.InvokeAsync(IsComplete);
+                    }
+                }
+                else
+                {
+
+                }
+
+
+            }
+            else
+            {
+
+                List<ProductM> newproductlist = new List<ProductM>();
+                newproductlist.Add(Model);
+
+                ProductTypeM productType = new ProductTypeM() {
+                           ShopId = SelectedShop.Id,
+                            ProductType = _type,
+                              Products = newproductlist
+
+                          };
+
+
+
+
+
+                SelectedShop.PlatformShopModel.productTypes.Add(productType);
+                var reaspond = await _shop.UpdateAsync(SelectedShop);
+
+
+
+
+                //Database update
+                if (reaspond)
+                {
+                    IsComplete =  true;
+                    isDismiss = "dis";
+                    StateHasChanged();
+                    await IsCompleteChanged.InvokeAsync(IsComplete);
+                }
+            }
+
+
+
+
+
+
+
+        }
+        catch
+        {
+            _snack.Add("Problem uploading Shop State", Severity.Error);
+        }
+        finally
+        {
+            isProcessSub = false;
+            StateHasChanged();
+        }
+
+    }
+
+
+
+    void OnSetType(string typeAV)
+    {
+        _type = typeAV;
+        StateHasChanged();
+
+    }
+    void OnAddSEO(string seo)
+    {
+        var _seo = new NameM(){ Name = seo};
+        listSuggest.Add(_seo);
+        _SEO = "";
+        StateHasChanged();
+
+    }
+    void OnDeleteSEO(NameM name){
+        try{
+            listSuggest.Remove(name);
+            StateHasChanged();
+        }
+        catch
+        {
+            
+        }
+    }
+
+    void OnPopDone(){
+        isPopup = false;
+        StateHasChanged();
+    }
+
+    
+
+
+}

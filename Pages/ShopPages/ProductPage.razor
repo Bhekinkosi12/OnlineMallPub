@@ -1,0 +1,128 @@
+﻿@page "/product"
+@page "/product/{id}"
+
+@using OnlineMall.Services.ShopServices
+@using OnlineMall.Pages.Profiles
+@inject ICrudService<ShopM> _shop
+@inject IAuthService _auth
+@inject ISnackbar _snack
+@inject NavigationManager _nav
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 col-sm-12">
+            <div class="product_img" >
+                <img style="width: 100%; height: 100%;" src="@Product.Image" />
+            </div>
+             <MudDivider>
+                <MudText Color="Color.Dark" Typo="Typo.caption">Product from @Product.ShopName</MudText>
+            </MudDivider>
+             <div class="horizon" style="justify-content: space-between; margin: 10px 0;">
+                
+                    <MudButton Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Check" Link="@Product.Link" Target="_blank" >Order Now !</MudButton>
+                    <MudButton Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.AddShoppingCart" OnClick="@(() => OnAddCart(Product))" >Add To Cart</MudButton>
+                
+            </div>
+        </div>
+        <div class="col-lg-4 col-sm-12">
+            <MudDivider>
+                <MudText Color="Color.Dark" GutterBottom="true" Typo="Typo.h4">@Product.Name</MudText>
+            </MudDivider>
+            <MudDivider>
+                <MudText Color="Color.Dark" Typo="Typo.h6">@Product.Description</MudText>
+            </MudDivider>
+            
+           
+        </div>
+
+    </div>
+
+</div>
+<MudFab  Style="position: fixed; margin: 30px; z-index: 9999999999999; bottom: 0; right: 0;" OnClick="OnDone" Icon="@Icons.Material.Outlined.ArrowBack" Color="Color.Dark"  />
+@code {
+    [Parameter]
+    public string Id { get; set; }
+
+    [Parameter]
+    public ProductM? Product { get; set; }
+
+    [Parameter]
+    public bool isSelected { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> isSelectedChanged { get; set; }
+
+
+    async void OnDone()
+    {
+        isSelected = false;
+        await isSelectedChanged.InvokeAsync(isSelected);
+        StateHasChanged();
+    }
+
+    protected override void OnParametersSet()
+    {
+
+
+        try{
+
+        }
+        catch
+        {
+            
+        }
+
+
+
+        base.OnParametersSet();
+    }
+
+
+    async void OnAddCart(ProductM product)
+    {
+        var user = _auth.User;
+        if(user != null)
+        {
+            if(user.Carts.Count != 0){
+                var selectedDefaultType = user.Carts.FirstOrDefault(x => x.CartName == "Default");
+                if(selectedDefaultType != null)
+                {
+                    var indexOF = user.Carts.IndexOf(selectedDefaultType);
+                    if(indexOF != -1)
+                    {
+                        selectedDefaultType.ProductList.Add(product);
+
+                    }
+                }
+            }
+            else
+            {
+                CartM newCart = new CartM()
+                {
+                   CartName = "Default",
+
+                };
+                newCart.ProductList.Add(product);
+            }
+
+
+            //Update 
+            var response = await _auth.UpDateUser(user);
+
+            if (response)
+            {
+                _snack.Add("Item Added ", Severity.Success);
+            }
+            else
+            {
+                _snack.Add("Item not added please Retry ", Severity.Warning);   
+            }
+
+        }
+        else
+        {
+            _nav.NavigateTo("/auth", true);
+        }
+    }
+
+}

@@ -1,0 +1,53 @@
+﻿@inherits LayoutComponentBase
+
+<MudThemeProvider @bind-IsDarkMode="isDarkTheme" />
+<MudDialogProvider />
+<MudSnackbarProvider  />
+
+<MudLayout Style="margin-left: 0; margin-right: 0; padding-right: 0">
+    <MudAppBar Elevation="0">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        <MudSpacer />
+        <MudIconButton Icon="@Icons.Material.Filled.DarkMode" Color="Color.Inherit"  Target="_blank" OnClick="@(() => ThemeToggle())" />
+             <MudIconButton Icon="@Icons.Material.Filled.Search" Color="Color.Inherit" Link="/search"  />
+        <MudIconButton Icon="@Icons.Material.Filled.ShoppingCart" Color="Color.Inherit" Link="/cart" Target="_blank" />
+        <MudIconButton Icon="@Icons.Material.Filled.Person"  Color="Color.Inherit" Link="/user/profile" Target="_blank" />
+        
+    </MudAppBar>
+    <MudDrawer @bind-Open="_drawerOpen" Elevation="1">
+        <MudDrawerHeader>
+            <MudText Typo="Typo.h6">Mzansi Go Mall</MudText>
+        </MudDrawerHeader>
+        <NavMenu />
+    </MudDrawer>
+    <MudMainContent  Style="margin-left: 0; margin-right: 0; padding-left: 0px; padding-right: 0px;" class="@_class" >
+        <MudContainer MaxWidth="MaxWidth.Large" Style="margin-left: 0; margin-right: 0; padding-left: 0px; padding-right: 0px;" >
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    bool _drawerOpen = false;
+    bool isDarkTheme = false;
+    string _class = "";
+
+    void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+
+
+    }
+
+    void ThemeToggle()
+    {
+        isDarkTheme = !isDarkTheme;
+        if(isDarkTheme){
+            _class = "dark";
+        }
+        else{
+            _class = "";
+        }
+        StateHasChanged();
+    }
+}

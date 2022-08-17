@@ -1,0 +1,141 @@
+﻿@page "/addshop"
+
+@using OnlineMall.FirebaseDB
+@inject ISnackbar _snack
+@using System.ComponentModel.DataAnnotations
+@inject ICrudService<ShopM> _shopService
+
+
+    <div class="container">
+        <div class="row" >
+            <div class="col-lg-4 offset-lg-4">
+
+                
+                  <div>
+                                         <div class="container">
+                                             <div class="row">
+                                                 <div class="col-10">
+                                                      <MudTextField T="string" @bind-Value="_SEO" Label="SEO"  FullWidth="true"  ></MudTextField>
+                                                 </div>
+                                                 <div class="col-2" style="padding-top: 10px;">
+                                                     <MudIconButton Color="Color.Success"  Variant="Variant.Outlined" Icon="@Icons.Material.Filled.Add" OnClick="@(() => OnAddSEO(_SEO))" ></MudIconButton>
+                                                 </div>
+                                             </div>
+
+                                         </div>
+                                     </div>
+                                     <br />
+                                      <div class="horizon">
+                                      
+               @foreach(var i in listSuggest){
+                   <div style="margin-left: 9px;">
+                   <MudButton IconColor="Color.Error" Variant="Variant.Outlined" Color="Color.Dark" StartIcon="@Icons.Material.Filled.Delete" OnClick="@(() => OnDeleteSEO(i))" >
+                       @i.Name
+                   </MudButton>
+                   </div>
+               
+               }
+
+               </div>
+
+               
+
+               <br />
+
+
+                <EditForm Model="@_shop" OnValidSubmit="@Create">
+                    <DataAnnotationsValidator />
+                 <MudTextField T="string" FullWidth="true" Label="Name" AutoFocus="true" For="@(() => _shop.Name)" @bind-Value="_shop.Name"  ></MudTextField>
+                 <br />
+                  <MudTextField T="string"  FullWidth="true" Label="Business Slogan" For="@(() => _shop.Slogan)" @bind-Value="_shop.Slogan" ></MudTextField>
+                  <br />
+                 <MudTextField T="string" FullWidth="true"  Label="Website Home Link" For="@(() => _shop.Website)" @bind-Value="_shop.Website" ></MudTextField>
+                 <br />
+                 <MudTextField T="string" FullWidth="true"  Label="Business Support Email" For="@(() => _shop.Email)" @bind-Value="_shop.Email" ></MudTextField>
+                 <br />
+                  <MudTextField T="string"  FullWidth="true" Label="Business Support Number" For="@(() => _shop.BusinessNumber)" @bind-Value="_shop.BusinessNumber" ></MudTextField>
+                  <br />
+
+                  <br />
+                   <MudTextField T="string"  FullWidth="true" Label="Register Enterprice Number" For="@(() => _shop.EnterpriceNumber)" @bind-Value="_shop.EnterpriceNumber" ></MudTextField>
+
+                   <div style="text-align: center; margin: 30px 0;">
+                 <MudProgressCircular Color="Color.Success" Indeterminate="@isProcessSub"  />
+             <MudButton ButtonType="ButtonType.Submit"  Variant="Variant.Filled" Color="Color.Success"  >Create</MudButton>
+             </div>
+
+
+
+                </EditForm>
+
+
+               
+            </div>
+
+        </div>
+    </div>
+    
+   
+
+
+
+
+@code {
+    bool isProcessSub = false;
+    ShopM _shop = new ShopM();
+    string _SEO = "";
+    List<NameM> listSuggest = new List<NameM>();
+
+    protected override void OnInitialized(){
+
+
+    }
+    void OnAddSEO(string seo)
+    {
+        if(string.IsNullOrEmpty(seo)){
+            return;
+        }
+        var _seo = new NameM(){ Name = seo};
+        listSuggest.Add(_seo);
+        _SEO = "";
+        StateHasChanged();
+
+    }
+    void OnDeleteSEO(NameM name){
+        try{
+            listSuggest.Remove(name);
+            StateHasChanged();
+        }
+        catch
+        {
+
+        }
+    }
+
+
+    async void Create(EditContext context){
+        isProcessSub = true;
+        _shop.SearchGuess = listSuggest;
+        StateHasChanged();
+        try{
+            var respond = await _shopService.CreateAsync(_shop);
+            if(respond){
+                _snack.Add("Created Successfully",Severity.Success);
+            }
+            else
+            {
+                
+                _snack.Add("Failed to create!",Severity.Info);
+            }
+        }
+        catch{
+            _snack.Add("Failed to create!",Severity.Info);
+        }
+        finally
+        {
+            isProcessSub = false;
+            StateHasChanged();
+        }
+    }
+
+}

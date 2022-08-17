@@ -1,0 +1,145 @@
+﻿@page "/cart"
+
+@using OnlineMall.LocalDB
+@using OnlineMall.Pages.Profiles
+@inject ICrudService<ShopM> _shop
+@inject IAuthService _auth
+@inject ISnackbar _snack
+@inject NavigationManager _nav
+
+@if (isSelectedItem)
+{
+    <OnlineMall.Pages.ShopPages.ProductPage Product="@selectedProduct" @bind-isSelected="isSelectedItem" ></OnlineMall.Pages.ShopPages.ProductPage>
+}
+else
+{
+    
+<div class="container">
+    <div class="row">
+         @foreach(var i in cartList){ 
+
+        <div class="col-12 shop__">
+            <MudBlazor.MudCard>
+                <MudCardHeader>
+                    <MudText Align="Align.Center">@i.CartName</MudText>
+                </MudCardHeader>
+                <MudCardContent>
+                   <div class="horizon" >
+                       @foreach (var item in i.ProductList){
+                       
+                           
+                      
+
+
+                        <MudCard Elevation="5" class="card__" style="width: 300px;">
+                           <MudCardMedia Height="200" style="width: 100%;" Image="@item.Name"></MudCardMedia>
+                           <MudCardContent>
+                              <div>
+                                  <div class="container">
+                                      <div class="row">
+                                          <div class="col-8">
+                                               <div class="text__wrap">
+                                <MudText Typo="Typo.h6" class="text__">@item.Name</MudText>
+                                <MudText Typo="Typo.caption"   class="text__" >@item.Description</MudText>
+                              
+                                </div>
+                                          </div>
+                                          <div class="col-2">
+                                               <MudIconButton Icon="@Icons.Material.Outlined.OpenInFull" OnClick="@(() => OnOpenProduct(item))"></MudIconButton>
+                                          </div>
+                                          <div class="col-2">
+                                              <MudIconButton Icon="@Icons.Material.Outlined.Remove" OnClick="@(() => OnDelete(i.CartName,item))" ></MudIconButton>
+                                          </div>
+                                      </div>
+                                  </div>
+
+                              </div>
+
+                           </MudCardContent>
+                       </MudCard>
+                    
+
+                       }
+
+                   </div>
+                </MudCardContent>
+                
+
+            </MudBlazor.MudCard>
+
+        </div>
+        
+        }
+    </div>
+
+</div>
+}
+
+
+
+@code {
+
+    bool isSelected = false;
+    bool isSelectedItem = false;
+    List<ShopM> ShopListOBJ = new List<ShopM>();
+    ShopM selectedShop = new ShopM();
+    CartM selectedCart = new CartM();
+    List<CartM> cartList = new List<CartM>();
+    ProductM selectedProduct = new ProductM();
+
+    protected override void OnInitialized()
+    {
+        var user = _auth.User;
+        if(user != null)
+        {
+            cartList = user.Carts;
+            StateHasChanged();
+        }
+        else
+        {
+            _nav.NavigateTo("/auth", true);
+        }
+    }
+
+
+    void OnOpen(ShopM shopselect)
+    {
+        selectedShop = shopselect;
+        isSelected = true;
+        StateHasChanged();
+    }
+
+    void OnOpenProduct(ProductM product)
+    {
+        selectedProduct = product;
+        isSelectedItem = true;
+        StateHasChanged();
+    }
+
+
+    async void OnDelete(string type,ProductM product)
+    {
+        var selecType = cartList.FirstOrDefault(x => x.CartName == type);
+        if(selecType != null){
+
+            int indexOf = cartList.IndexOf(selecType);
+
+            selecType.ProductList.Remove(product);
+
+
+            cartList[indexOf] = selecType;
+
+            var user = _auth.User;
+            user.Carts = cartList;
+            var response = await _auth.UpDateUser(user);
+
+            if (response)
+            {
+                _snack.Add("Item deleted", Severity.Success);
+            }
+
+
+        }
+    }
+
+}
