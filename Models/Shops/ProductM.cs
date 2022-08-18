@@ -17,6 +17,7 @@ namespace OnlineMall.Models.Shops
         public int AutoId { get; set; }
         public string Id { get; set; } = $"{Guid.NewGuid()}asd{Guid.NewGuid()}";
         public string ShopName { get; set; }
+        public string? ProductShopID { get; set;}
         public int ShopID { get; set; }
         [Required]
         public string Name { get; set; }

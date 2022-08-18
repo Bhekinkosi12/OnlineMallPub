@@ -7,6 +7,7 @@
 @inject ISnackbar _snack
 @inject IProductService _product
 @inject NavigationManager _nav
+@inject IJSRuntime _jsrun
 
 
 @if(isItemSelected){
@@ -20,7 +21,7 @@ else{
 
         <div class="col-lg-4 offset-lg-4" style="margin-bottom: 30px;" >
             
-            <MudAutocomplete T="string" Immediate="true" Placeholder="Search" Clearable="true"  @bind-Value="SearchValue" CloseIcon="@Icons.Material.Filled.Clear" CoerceValue="true" OnClearButtonClick="OnClear"  SearchFunc="@SearchAutoFill" OnAdornmentClick="OnSearch"  AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Secondary"  ></MudAutocomplete>
+            <MudAutocomplete T="string"  Placeholder="Search" Clearable="true"  @bind-Value="SearchValue" CloseIcon="@Icons.Material.Filled.Clear" CoerceValue="true" OnClearButtonClick="OnClear"  SearchFunc="@SearchAutoFill" OnAdornmentClick="OnSearch"  AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Secondary"  ></MudAutocomplete>
         </div>
 
 
@@ -34,7 +35,7 @@ else{
                  <div class="col-lg-3 col-md-4 col-sm-6">
 
                  <MudCard Elevation="5" class="card__" style="position: relative;">
-                             <MudIconButton Icon="@Icons.Material.Outlined.Share" Style="position: absolute; margin: 0; top: 0px; right: 0px;"></MudIconButton>
+                             <MudIconButton Icon="@Icons.Material.Outlined.Share" OnClick="@(() => OnShare(item.Id))" Style="position: absolute; margin: 0; top: 0px; right: 0px;"></MudIconButton>
                            <MudCardMedia Height="200" style="width: 100%;" Image="@item.Image"  @onclick="@(() => OnOpenProduct(item))"  >
                               
                            </MudCardMedia>
@@ -266,6 +267,10 @@ else{
 
     }
 
+     private async void OnShare(string text)
+    {
+       await _jsrun.InvokeVoidAsync("clipboardCopy.copyText",$"www.mzansigomall.co.za/product/{text}");
+    }
 
     private void OnSearch()
     {

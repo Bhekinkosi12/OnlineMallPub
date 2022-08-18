@@ -5,6 +5,7 @@
 @inject ICrudService<ShopM> _shop
 @inject IAuthService _auth
 @inject ISnackbar _snack
+@inject IJSRuntime _jsrun
 @inject NavigationManager _nav
 
 
@@ -42,12 +43,18 @@ else{
                 <MudCardHeader style="padding: 0 7px;">
                     <div class="container">
                         <div class="row">
+                            <div class="col-2">
+                                @if(i.Logo != null){
+
+                                <Counter Status="@i.ShopStatus" Image="@i.Logo" ></Counter>
+                                }
+                            </div>
                             <div class="col-8">
 
                     <MudText Align="Align.Start">@i.Name</MudText>
                     
                             </div>
-                            <div class="col-4">
+                            <div class="col-2">
                                 <MudIconButton Icon="@Icons.Material.Filled.OpenInFull" OnClick="@(() => OnOpen(i))" Color="Color.Dark" Variant="Variant.Outlined" > </MudIconButton>
                             </div>
                         </div>
@@ -63,7 +70,7 @@ else{
 
 
                         <MudCard Elevation="5" class="card__" style="position: relative;">
-                             <MudIconButton Icon="@Icons.Material.Outlined.Share" Style="position: absolute; margin: 0; top: 0px; right: 0px;"></MudIconButton>
+                             <MudIconButton Icon="@Icons.Material.Outlined.Share" OnClick="@(() => OnShare(item.Id))" Style="position: absolute; margin: 0; top: 0px; right: 0px;"></MudIconButton>
                            <MudCardMedia Height="200" style="width: 100%;" Image="@item.Image"  @onclick="@(() => OnOpenProduct(item))" >
                               
                            </MudCardMedia>
@@ -505,6 +512,11 @@ else{
     {
         isCompare = true;
         StateHasChanged();
+    }
+
+   private async void OnShare(string text)
+    {
+       await _jsrun.InvokeVoidAsync("clipboardCopy.copyText",$"www.mzansigomall.co.za/product/{text}");
     }
 
     protected async override void OnInitialized()

@@ -32,6 +32,9 @@
                             <MudProgressCircular Color="Color.Success" Indeterminate="@isProcess"  />
                                      </div>
                                      <br />
+                                     <MudTextField T="string" Variant="Variant.Outlined" Placeholder="Image Link" @bind-Value="_Image"   ></MudTextField>
+
+                                     <br />
 
                                      
                                      <MudTextField T="string" @bind-Value="_type" Label="Product Shelf"  AutoFocus="true" FullWidth="true" Variant="Variant.Outlined" ></MudTextField>
@@ -39,7 +42,7 @@
             <div class="horizon">
                @foreach(var i in SelectedShop.PlatformShopModel.productTypes){
                    <div>
-                   <MudButton OnClick="@(() => OnSetType(i.ProductType))">
+                   <MudButton  OnClick="@(() => OnSetType(i.ProductType))">
                        @i.ProductType
                    </MudButton>
                    </div>
@@ -80,6 +83,11 @@
 
                </div>
                <br />
+
+               <br />
+                                     <MudTextField T="string" Variant="Variant.Outlined" Placeholder="Barcode ID" @bind-Value="Model.ProductShopID"   ></MudTextField>
+
+                                     <br />
 
          <EditForm Model="@Model" OnValidSubmit="OnValidSubmit"   >
              <DataAnnotationsValidator />

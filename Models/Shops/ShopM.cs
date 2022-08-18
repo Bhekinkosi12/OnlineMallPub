@@ -27,7 +27,7 @@ namespace OnlineMall.Models.Shops
         public string BusinessNumber { get; set; }
         [Required]
         public string EnterpriceNumber { get; set; }
-
+        public string? Logo { get; set; }
         public string Image { get; set; }  
         public string Profile { get; set; }
         public string WaterMark { get; set; }
@@ -40,7 +40,16 @@ namespace OnlineMall.Models.Shops
         public PlatformShopM PlatformShopModel { get; set; }
         public string? Splash { get; set; }
         public List<NameM> SearchGuess { get; set; }
+        public ShopStatusM ShopStatus { get; set; } = ShopStatusM.Success;
 
 
     }
+
+    public enum ShopStatusM
+    {
+        Success,
+        Warning,
+        Error
+    }
+
 }

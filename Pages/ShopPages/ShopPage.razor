@@ -8,6 +8,7 @@
 @using System.ComponentModel.DataAnnotations
 @inject ICrudService<ShopM> _shop
 @inject IAuthService _auth
+@inject IJSRuntime _jsrun
 @inject NavigationManager _nav
 
 
@@ -30,7 +31,7 @@ else{
     
      <div class="row">
          <div class="col-12" style="height: 200px;">
-             <video src="@Shop.IntroVideo" autoplay style="height: 100%; width: 100%;" ></video>
+             <img src="@Shop.IntroVideo" autoplay style="height: 100%; width: 100%;" />
          </div>
 
 
@@ -73,7 +74,9 @@ else{
                     {
                         
                     
-                   <MudCard Elevation="5" class="card__" style="width: 300px;">
+                   <MudCard Elevation="5" class="card__" style="width: 300px;position: relative;">
+                             <MudIconButton Icon="@Icons.Material.Outlined.Share" OnClick="@(() => OnShare(inner.Id))" Style="position: absolute; margin: 0; top: 0px; right: 0px;"></MudIconButton>
+                          
                            <MudCardMedia Height="200" style="width: 100%;" Image="@inner.Image" @onclick="@(() => OnOpenProduct(inner))"></MudCardMedia>
                            <MudCardContent>
                               <div>
@@ -281,6 +284,11 @@ else{
         {
             _nav.NavigateTo("/auth", true);
         }
+    }
+
+     private async void OnShare(string text)
+    {
+       await _jsrun.InvokeVoidAsync("clipboardCopy.copyText",$"www.mzansigomall.co.za/product/{text}");
     }
 
     async void OnAddCompare(ProductM product)

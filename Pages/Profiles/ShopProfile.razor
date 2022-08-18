@@ -5,6 +5,7 @@
 @using System.ComponentModel.DataAnnotations
 @inject ICrudService<ShopM> _shop
 @inject IAuthService _auth
+@inject IJSRuntime _jsrun
 @inject NavigationManager _nav
 
 
@@ -74,7 +75,7 @@ else{
 
                   <div style="margin-right: 10px;">
                     <label style="box-shadow: 0 2px 7px #4caf50; display: inline-flex; width: 150px; justify-content: space-around; border-radius: 2em; color: white; border: 2px solid; cursor: pointer; align-items: center; padding: 8px 2px 6px 2px; background-color: #4caf50;" for="fileIn" >
-                   Video <MudIcon Icon="@Icons.Filled.CloudUpload" > </MudIcon>
+                   Ads <MudIcon Icon="@Icons.Filled.CloudUpload" > </MudIcon>
                 </label> 
                 <InputFile id="fileIn" OnChange="UploadVideo"  hidden multiple />
                 </div >
@@ -347,7 +348,10 @@ else{
         */
 
     }
-
+     private async void OnShare(string text)
+    {
+       await _jsrun.InvokeVoidAsync("clipboardCopy.copyText",$"www.mzansigomall.co.za/product/{text}");
+    }
     async void ToggleVisibility()
     {
         Shop.isConfirmed = !Shop.isConfirmed;
@@ -462,6 +466,69 @@ else{
 
     }
 
+    
+    private async void UploadLogo(InputFileChangeEventArgs e) {
+        StorageDB fstor = new StorageDB();
+        isProcess = true;
+        StateHasChanged();
+
+        var _file = e.GetMultipleFiles();
+
+        try
+        {
+
+
+
+            if (_file != null)
+            {
+
+
+
+                var ite = _file[0].OpenReadStream();
+
+                var st = await fstor.AddStoreStream(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), ite);
+
+
+
+                if (st != null)
+                {
+                    Shop.Logo = st;
+                    _snack.Add("Updating Image...!", Severity.Info);
+                    var respondURL = await _shop.UpdateAsync(Shop);
+                    if(respondURL){
+
+                        _snack.Add("Logo Image Updated!", Severity.Success);
+                   
+                        StateHasChanged();
+                    }
+                }
+                else {
+                    _snack.Add("Please ReLoad The Image!", Severity.Error);
+                }
+
+
+
+
+            }
+            else
+            {
+                _snack.Add("Invalid Selection!", Severity.Error);
+            }
+
+        }
+        catch
+        {
+            _snack.Add("Unexpected Error!", Severity.Error);
+        }
+        finally
+        {
+            isProcess = false;
+            StateHasChanged();
+        }
+
+
+
+    }
 
 
 

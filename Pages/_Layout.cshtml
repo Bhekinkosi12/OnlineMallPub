@@ -29,6 +29,19 @@
         <a href="" class="reload">Reload</a>
         <a class="dismiss">🗙</a>
     </div>
+
+    <script>
+        window.clipboardCopy = {
+            copytext: function(text){
+                navigator.clipboard.writeText(text).then(function (){
+                    alert("Copied to clipboard");
+                })
+                .catch(function (error){
+                    alert(error);
+                })
+            }
+        }
+    </script>
     <script src="_framework/blazor.server.js"></script>
     <script src="_content/MudBlazor/MudBlazor.min.js"></script>
     <script>

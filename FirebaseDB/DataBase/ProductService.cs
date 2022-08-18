@@ -89,7 +89,56 @@ namespace OnlineMall.FirebaseDB.DataBase
                     }
                     else
                     {
-                        return null;
+                        // search from shop list
+
+                        ShopDatabase shopDB = new ShopDatabase();
+
+                       var shops = await shopDB.GetAllPublicAsync();
+
+                        if(shops.Count != 0)
+                        {
+                            ProductM productS = new ProductM();
+                            foreach(var up in shops)
+                            {
+                                
+                                foreach(var down in up.PlatformShopModel.productTypes)
+                                {
+                                    var selected = down.Products.FirstOrDefault(x => x.Id == id);
+                                    if(selected != null)
+                                    {
+                                        productS = selected;
+                                    }
+                                }
+
+                            }
+
+
+
+                            if(string.IsNullOrEmpty(productS.Name))
+                            {
+                                return productS;
+                            }
+                            else
+                            {
+                                return null;
+                            }
+
+
+
+                        }
+                        else
+                        {
+                            return null;
+                        }
+
+
+
+
+
+
+
+
+
                     }
                 }
                 else

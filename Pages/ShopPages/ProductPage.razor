@@ -7,6 +7,7 @@
 @inject IAuthService _auth
 @inject ISnackbar _snack
 @inject NavigationManager _nav
+@inject IProductService _product
 
 <div class="container">
     <div class="row">
@@ -43,10 +44,14 @@
     </div>
 
 </div>
+@if (Id == null)
+{
+    
 <MudFab  Style="position: fixed; margin: 30px; z-index: 9999999999999; bottom: 0; right: 0;" OnClick="OnDone" Icon="@Icons.Material.Outlined.ArrowBack" Color="Color.Dark"  />
+}
 @code {
     [Parameter]
-    public string Id { get; set; }
+    public string? Id { get; set; }
 
     [Parameter]
     public ProductM? Product { get; set; }
@@ -58,6 +63,9 @@
     public EventCallback<bool> isSelectedChanged { get; set; }
 
 
+    
+
+
     async void OnDone()
     {
         isSelected = false;
@@ -65,12 +73,20 @@
         StateHasChanged();
     }
 
-    protected override void OnParametersSet()
+    protected async override void OnParametersSet()
     {
 
 
         try{
+            if(Id != null){
+                var selected = await _product.GetProductById(Id);
 
+                if(selected != null)
+                {
+                    Product = selected;
+                }
+
+            }
         }
         catch
         {
