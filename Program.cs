@@ -9,12 +9,17 @@ using OnlineMall.Models.Shops;
 using OnlineMall.Services.AuthService;
 using OnlineMall.FirebaseDB.Auth;
 using OnlineMall.LocalDB;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+using Microsoft.AspNetCore.Components.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddAuthenticationCore();
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
+builder.Services.AddScoped<ProtectedSessionStorage>();
+builder.Services.AddScoped<AuthenticationStateProvider, AuthStateService>();
 builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddScoped<ICrudService<ShopM>, ShopDatabase>();
 builder.Services.AddScoped<IAuthService, AuthService>();

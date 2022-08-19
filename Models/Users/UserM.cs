@@ -25,6 +25,7 @@ namespace OnlineMall.Models.Users
         [Compare(nameof(Password))]
         public string? RepeatPassword { get; set; }
         public string? Token { get; set; }
+        public string Role { get; set; } = "User";
         public double MGMBucks { get; set; }
         public List<CartM> Carts { get; set; }
 

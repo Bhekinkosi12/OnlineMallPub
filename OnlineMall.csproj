@@ -22,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <_ContentIncludedByDefault Remove="Pages\Auth\AdminAuthPage.razor" />
     <_ContentIncludedByDefault Remove="Pages\Profiles\AddVIntroAdd.razor" />
     <_ContentIncludedByDefault Remove="Pages\ShopPages\ProductComponent.razor" />
     <_ContentIncludedByDefault Remove="Pages\ShopPages\SearchPage.razor" />
@@ -33,6 +34,10 @@
 
   <ItemGroup>
     <UpToDateCheckInput Remove="Pages\Profiles\AddVIntroAdd.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Pages\Auth\AdminAuthPage.razor" />
   </ItemGroup>
 
 </Project>

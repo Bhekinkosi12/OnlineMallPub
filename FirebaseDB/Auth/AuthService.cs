@@ -9,6 +9,8 @@ using Firebase.Auth;
 using Firebase.Database;
 using Firebase.Database.Query;
 using OnlineMall.LocalDB;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 
 
 namespace OnlineMall.FirebaseDB.Auth
@@ -21,8 +23,11 @@ namespace OnlineMall.FirebaseDB.Auth
         private static bool isAdmin;
         private string token;
         ICookie _cookie;
-        public AuthService(ICookie cookie)
+
+        private AuthenticationStateProvider _provider;
+        public AuthService(ICookie cookie, AuthenticationStateProvider authProvider)
         {
+            _provider = authProvider;
             _cookie = cookie;
             _auth = new FirebaseAuthProvider(new FirebaseConfig("AIzaSyADB3AtQ4iAxfsn7S2pIb5XqEKvjnZONuM"));
             _client = new FirebaseClient("https://mzansigomall-default-rtdb.firebaseio.com");
@@ -115,7 +120,7 @@ namespace OnlineMall.FirebaseDB.Auth
             }
         }
 
-        public async Task<bool> Signin(string email, string password,string username)
+        public async Task<bool> Signin(string email, string password,string username, string role = "User")
         {
             try
             {
@@ -123,11 +128,14 @@ namespace OnlineMall.FirebaseDB.Auth
 
                 if(response != null)
                 {
+
+                    
                     UserM user = new UserM()
                     {
                          Email = email,
                           Name = username,
-                           Token = response.RefreshToken
+                           Token = response.RefreshToken,
+                            Role = role
                     };
 
                     var itemResp = await _client.Child("user").PostAsync(user);
@@ -179,5 +187,7 @@ namespace OnlineMall.FirebaseDB.Auth
                 return false;
             }
         }
+
+        
     }
 }

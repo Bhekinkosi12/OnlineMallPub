@@ -1,4 +1,5 @@
-﻿@page "/auth"
+﻿@page "/auth/admin"
+
 
 @using OnlineMall.Models.Users
 @using System.ComponentModel.DataAnnotations
@@ -126,8 +127,7 @@ else
         }
         else
         {
-            var respo = await _auth.Signin(model.Email, model.Password, model.Name);
-            
+            var respo = await _auth.Signin(model.Email, model.Password, model.Name,"Admin");
 
             if (respo)
             {
@@ -152,5 +152,8 @@ else
         public string? Password { get; set; }
 
    }
+
+}
+code {
 
 }
