@@ -15,9 +15,13 @@
             <div class="product_img" >
                 <img style="width: 100%; height: 100%;" src="@Product.Image" />
             </div>
-             <MudDivider>
+              <MudCard>
+                <MudCardHeader>
                 <MudText Color="Color.Dark" Typo="Typo.caption">Product from @Product.ShopName</MudText>
-            </MudDivider>
+                 <MudText Color="Color.Dark" Typo="Typo.caption">R @Product.Price</MudText>
+
+            </MudCardHeader>
+            </MudCard>
              <div class="horizon" style="justify-content: space-between; margin: 10px 0;">
                 
                     <MudButton Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Check" Link="@Product.Link" Target="_blank" >Order Now !</MudButton>

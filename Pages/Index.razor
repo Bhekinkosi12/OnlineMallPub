@@ -1,4 +1,302 @@
 ﻿@page "/"
 
+
+
+@using System.ComponentModel.DataAnnotations
+@inject IAuthService _auth
+@inject ISnackbar _snack
+@inject NavigationManager _nav
+
+
 <OnlineMall.Pages.ShopPages.ShopSplash></OnlineMall.Pages.ShopPages.ShopSplash>
-<OnlineMall.Pages.ShopPages.ShopList />
+
+@if (isNew)
+{
+    
+    <OnlineMall.Pages.ShopPages.ShopList />
+}
+else
+{
+    
+
+    <div class="container page" style="margin-bottom: 40px;">
+        <div class="row">
+            <div class="col-lg-4 offset-lg-4">
+                <div style="text-align: end;">
+                    <MudButton Color="Color.Dark" Variant="Variant.Text" OnClick="OnCancel" >Skip</MudButton>
+                </div>
+
+                <div style="height: 350px; width: 100%">
+                    <img src="images/1store.gif" style="width: 100%; height: 100%;"/>
+                </div>
+                 <MudText Align="Align.Center" Typo="Typo.h4" style="font-family: cursive;">Mzansi Go Mall</MudText>
+
+                <br/>
+
+
+               
+
+
+
+
+                <div class="@div1">
+
+                   
+                    <br />
+                    <br />
+                    <MudText Align="Align.Center" Typo="Typo.h6">What`s your name?</MudText>
+
+                    
+                    <br />
+
+                    <MudTextField FullWidth="true" T="string" Required="true" RequiredError="What is your name?" Label="Name" @bind-Value="user.Name" Variant="Variant.Outlined"  ></MudTextField>
+
+                    <br />
+                    <br />
+                    <br />
+
+
+                    <div style="text-align: center" >
+                        <MudButton StartIcon="@Icons.Material.Filled.ArrowRight"  Color="Color.Success" Variant="Variant.Filled" OnClick="@(() => OnNext(1))" >Next</MudButton>
+                    </div>
+                    <br/>
+                    <div style="text-align: center; margin-bottom: 40px;" >
+                        <MudButton StartIcon="@Icons.Material.Filled.Login" Color="Color.Primary" Variant="Variant.Outlined" Link="/auth" >Login</MudButton>
+                    </div>
+
+                </div>
+
+
+
+                 <div class="@div2">
+
+                   <EditForm Model="@email" OnValidSubmit="OnValidEmail" >
+                       <DataAnnotationsValidator />
+                    <br />
+                    <br />
+                    <MudText Align="Align.Center" Typo="Typo.h6">What`s your email?</MudText>
+
+                    
+                    <br />
+
+                    <MudTextField FullWidth="true" T="string" Label="Email"  @bind-Value="email.Email" For="@(() => email.Email)" Variant="Variant.Outlined"  ></MudTextField>
+
+                    <br />
+
+                    <MudSlider T="double" @bind-Value="average" Min="0" Max="40000" Step="500"  >Your Monthly average on stores : @average </MudSlider>
+                    <br />
+                    <br />
+
+
+                    <div style="text-align: center; margin-bottom: 50px;" >
+                        <MudButton ButtonType="ButtonType.Submit" StartIcon="@Icons.Material.Filled.Login" Color="Color.Success" Variant="Variant.Filled" >Next</MudButton>
+                    </div>
+                    </EditForm>
+                </div>
+
+
+
+
+
+                 <div class="@div3">
+
+                   <EditForm Model="@password" OnValidSubmit="OnValidPassword">
+                        <DataAnnotationsValidator />
+                    <br />
+                    <br />
+                    <MudText Align="Align.Center" Typo="Typo.h6">Create a Password?</MudText>
+
+                    
+                    <br />
+
+                    <MudTextField FullWidth="true" T="string" Label="Password" For="@(() => password.Password)" @bind-Value="password.Password" Variant="Variant.Outlined"   ></MudTextField>
+
+                    <br />
+                    <MudTextField FullWidth="true" T="string" Label="Password" For="@(() => password.PasswordRepeat)" @bind-Value="password.PasswordRepeat" Variant="Variant.Outlined"   ></MudTextField>
+
+                    <br />
+                    
+
+
+                    <div style="text-align: center; margin-bottom: 40px;" >
+                         <MudProgressCircular Color="Color.Success" Indeterminate="@isProcess"  />
+                        <MudButton StartIcon="@Icons.Material.Filled.Login" ButtonType="ButtonType.Submit" Color="Color.Success" Variant="Variant.Filled" >Create</MudButton>
+                    </div>
+
+                    </EditForm>
+
+                </div>
+
+                
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+}
+
+
+
+
+
+
+
+
+@code{
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationState { get; set; }
+
+
+
+    // indivitual validation
+
+    double average = 0;
+
+    EmailV email = new EmailV();
+    PasswordV password = new PasswordV();
+    public class EmailV{
+        [Required]
+        [EmailAddress]
+        public string? Email {get; set;}
+    }
+
+
+    public class PasswordV{
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Password is required")]
+        [StringLength(30, ErrorMessage = "Password must be at least 6 characters long.", MinimumLength = 6)]
+        public string? Password { get; set; }
+        [Required(AllowEmptyStrings = false,ErrorMessage = "Password is required")]
+        [Compare(nameof(Password),ErrorMessage = "Passwords do not match")]
+        public string? PasswordRepeat {get; set;}
+    }
+
+
+
+
+
+
+    void OnValidEmail(){
+        user.Email = email.Email;
+        OnNext(2);
+    }
+
+
+
+    async void OnValidPassword()
+    {
+        isProcess = true;
+        StateHasChanged();
+        try{
+            var response = await _auth.Signin(user.Email, user.Password, user.Name,"User",average);
+
+
+            if (response)
+            {
+                isNew = false;
+                StateHasChanged();
+                _nav.NavigateTo("/demo", true);
+            }
+            else
+            {
+                _nav.NavigateTo("/demo", true);
+            }
+        }
+        catch{
+            _nav.NavigateTo("/demo", true);
+        }
+    }
+
+
+
+    // auth 
+    string name = "";
+    UserM user = new UserM();
+
+
+    string div1 = "";
+    string div2 = "dis";
+    string div3 = "dis";
+    bool isProcess = false;
+
+
+
+
+    private bool isNew = false;
+
+    protected override async void OnParametersSet()
+    {
+
+        var state = await authenticationState;
+
+        if(state.User == null)
+        {
+            isNew = true;
+            StateHasChanged();
+        }
+
+        base.OnParametersSet();
+    }
+
+
+    void OnCancel()
+    {
+        isNew = true;
+        StateHasChanged();
+    }
+
+
+    async void OnNext(int index)
+    {
+        if(index == 1)
+        {
+            if (!string.IsNullOrEmpty(user.Name))
+            {
+                div1 = "dis";
+                div2 = "able";
+                StateHasChanged();
+            }
+        }
+        else if(index == 2)
+        {
+            if (!string.IsNullOrEmpty(user.Email))
+            {
+                div1 = "dis";
+                div2 = "dis";
+                div3 = "able";
+                StateHasChanged();
+            }
+        }
+        else
+        {
+            if(!string.IsNullOrEmpty(user.Password) && !string.IsNullOrEmpty(user.RepeatPassword))
+            {
+                if(user.Password == user.RepeatPassword)
+                {
+
+                    isProcess = true;
+                    StateHasChanged();
+
+                    try
+                    {
+
+
+                        
+                    }
+                    catch
+                    {
+                        isNew = false;
+                            StateHasChanged();
+                    }
+
+                }
+            }
+        }
+
+    }
+
+}

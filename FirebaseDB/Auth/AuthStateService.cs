@@ -36,7 +36,8 @@ namespace OnlineMall.FirebaseDB.Auth
                     var claimsPrinciple = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>
                 {
                     new Claim(ClaimTypes.Name,userSession.Name),
-                    new Claim(ClaimTypes.Role,userSession.Role)
+                    new Claim(ClaimTypes.Role,userSession.Role),
+                    new Claim(ClaimTypes.Authentication,userSession.Token)
                 }, "CustomAuth"));
                     return await Task.FromResult(new AuthenticationState(claimsPrinciple));
                 }
@@ -51,14 +52,16 @@ namespace OnlineMall.FirebaseDB.Auth
         public async Task UpdateAuthState(UserM? userSession)
         {
             ClaimsPrincipal claimsPrincipal;
-
+            
+           
             if(userSession != null)
             {
                 await _sessionStorage.SetAsync("UserSession", userSession);
                 claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>
                 {
                     new Claim(ClaimTypes.Name,userSession.Name),
-                    new Claim(ClaimTypes.Role,userSession.Role)
+                    new Claim(ClaimTypes.Role,userSession.Role),
+                    new Claim(ClaimTypes.Authentication,userSession.Token)
                 }));
 
             }

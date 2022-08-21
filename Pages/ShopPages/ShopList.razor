@@ -38,7 +38,7 @@ else{
                 
        @foreach(var i in ShopListOBJ){ 
 
-        <div class="col-12 shop__" style="width: 300px">
+        <div class="col-12 shop__" style="width: 300px; padding-top: 10px">
             <MudBlazor.MudCard>
                 <MudCardHeader style="padding: 0 7px;">
                     <div class="container">
@@ -46,7 +46,7 @@ else{
                             <div class="col-2">
                                 @if(i.Logo != null){
 
-                                <Counter Status="@i.ShopStatus" Image="@i.Logo" ></Counter>
+                                <Counter Status="@i.ShopStatus"  Image="@i.Logo" ></Counter>
                                 }
                             </div>
                             <div class="col-8">

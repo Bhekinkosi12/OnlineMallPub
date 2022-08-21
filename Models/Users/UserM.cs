@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using OnlineMall.Models.Shops;
+using OnlineMall.Models.Users.Credits;
 using System.ComponentModel.DataAnnotations;
 
 namespace OnlineMall.Models.Users
@@ -11,6 +12,7 @@ namespace OnlineMall.Models.Users
         public UserM()
         {
             Carts = new List<CartM>();
+            Credit = new CreditM();
         }
         public int Id { get; set; }
         public string Image { get; set; }
@@ -27,7 +29,9 @@ namespace OnlineMall.Models.Users
         public string? Token { get; set; }
         public string Role { get; set; } = "User";
         public double MGMBucks { get; set; }
+        public CreditM Credit { get; set; }
         public List<CartM> Carts { get; set; }
+        
 
     }
 }

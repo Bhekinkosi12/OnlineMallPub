@@ -14,7 +14,7 @@ namespace OnlineMall.Services.AuthService
         string? Token { get; }
         Task<bool> AutoLogin();
         Task<bool> Login (string email, string password);
-        Task<bool> Signin(string email, string password,string username, string role = "User");
+        Task<bool> Signin(string email, string password,string username, string role = "User",double budget = 0);
         Task<bool> UpDateUser(UserM user)
         {
             throw new NotImplementedException();

@@ -11,17 +11,12 @@
     <div class="row">
         <div class="col-lg-4 offset-lg-4">
             <div style="position: relative;">
-                <div style="height: 150px; width: 150px; clip-path:circle(); position: absolute; margin-left: 50%; transform:translateX(-50%);">
+                <div  style="height: 150px; width: 150px; clip-path:circle(); position: absolute; margin-left: 50%; transform:translateX(-50%);">
                     <img src="@_Image" style="width: 100%; height: 100%;" />
                 </div>
 
             </div>
-            <div style="text-align: center; margin-top: 20px;">
-                <label style="box-shadow: 0 2px 7px #4caf50; display: inline-flex; width: 150px; justify-content: space-around; border-radius: 2em; color: white; border: 2px solid; cursor: pointer; align-items: center; padding: 16px; background-color: #4caf50;" for="fileIn" >
-                   Change <MudIcon Icon="@Icons.Filled.CloudUpload" > </MudIcon>
-                </label>
-                <InputFile id="fileIn" OnChange="UploadF"  hidden multiple />
-            </div>
+           
             <div>
                 <MudText Align="Align.Center" style="font-size: 21px;">@user.Name</MudText>
                 
@@ -36,7 +31,7 @@
 
 
 @code {
-    string _Image = "";
+    string _Image = "images/defaultuser.png";
     bool isProcess = false;
     StorageDB fstor = new StorageDB();
 
@@ -55,7 +50,7 @@
         }
         else
         {
-            _nav.NavigateTo("/auth");
+           // _nav.NavigateTo("/auth");
         }
 
         base.OnInitialized();

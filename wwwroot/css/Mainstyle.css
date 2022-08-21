@@ -72,6 +72,20 @@
     display: none;
 }
 
+.disables {
+    visibility: hidden;
+    display: none;
+    opacity: 0;
+    transition: ease-in-out 1s;
+    
+}
+
+.able {
+    visibility: initial;
+    display: initial;
+    transition: ease-in-out 1s;
+}
+
 .splashIMG{
     position: fixed;
     left: 0;

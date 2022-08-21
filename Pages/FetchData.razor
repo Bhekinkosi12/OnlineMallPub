@@ -1,42 +1,185 @@
-﻿@page "/fetchdata"
-@using OnlineMall.Data
-@inject WeatherForecastService ForecastService
+﻿@page "/demo"
 
-<PageTitle>Weather forecast</PageTitle>
+@inject NavigationManager _nav
 
-<MudText Typo="Typo.h3" GutterBottom="true">Weather forecast</MudText>
-<MudText Class="mb-8">This component demonstrates fetching data from the server.</MudText>
-@if (forecasts == null)
-{
-    <MudProgressCircular Color="Color.Default" Indeterminate="true" />
-}
-else
-{
-    <MudTable Items="forecasts" Hover="true" SortLabel="Sort By" Elevation="0">
-        <HeaderContent>
-            <MudTh><MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<WeatherForecast, object>(x=>x.Date)">Date</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<WeatherForecast, object>(x=>x.TemperatureC)">Temp. (C)</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<WeatherForecast, object>(x=>x.TemperatureF)">Temp. (F)</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<WeatherForecast, object>(x=>x.Summary)">Summary</MudTableSortLabel></MudTh>
-        </HeaderContent>
-        <RowTemplate>
-            <MudTd DataLabel="Date">@context.Date</MudTd>
-            <MudTd DataLabel="Temp. (C)">@context.TemperatureC</MudTd>
-            <MudTd DataLabel="Temp. (F)">@context.TemperatureF</MudTd>
-            <MudTd DataLabel="Summary">@context.Summary</MudTd>
-        </RowTemplate>
-        <PagerContent>
-            <MudTablePager PageSizeOptions="new int[]{50, 100}" />
-        </PagerContent>
-    </MudTable>
-}
+
+<div class="container page">
+    <div class="row">
+        <div class="col-lg-4 offset-lg-4">
+
+            <div class="@div1">
+                  
+                <br />
+                <br />
+                <br />
+                <MudText GutterBottom="true" Typo="Typo.h6"  Align="Align.Center">Tap on the image to open the product for more details </MudText>
+                      <br />
+                      <br />
+                      
+
+
+                        <MudCard Elevation="5" class="card__" style="position: relative;">
+
+                            <img width="150" height="150" src="images/pointer.gif" style="position: absolute; margin: 0 0 0 50%; top: 40px; right: 0;  z-index: 30000000000; transform:translate(-50%);" />
+
+                             <MudIconButton Icon="@Icons.Material.Outlined.Share"  Style="position: absolute; margin: 0; top: 0px; right: 0px;"></MudIconButton>
+                          <img height="270" style="width: 100%;" src="images/product.jpeg" />
+                           <MudCardContent>
+                              <div>
+                                  <div class="container">
+                                      <div class="row">
+                                          <div class="col-8">
+                                               <div class="text__wrap">
+                                <MudText Typo="Typo.h6" class="text__">Product Name</MudText>
+                                <MudText Typo="Typo.caption"  class="text__" >Product Description</MudText>
+                                <MudText Typo="Typo.caption" Color="Color.Warning" >R 00.00</MudText>
+                              
+                                </div>
+                                          </div>
+                                          <div class="col-2">
+                                               <MudIconButton class="nohoverborder" Icon="@Icons.Material.Outlined.AddShoppingCart" ></MudIconButton>
+                                          </div>
+                                          <div class="col-2">
+                                              <MudIconButton class="nohoverborder" Icon="@Icons.Material.Outlined.CompareArrows" ></MudIconButton>
+                                          </div>
+                                      </div>
+                                  </div>
+
+                              </div>
+
+                           </MudCardContent>
+
+                           
+                       </MudCard>
+                    
+
+                      <br />
+                      <br />
+
+                      <div style="text-align: center;">
+                          <MudButton Color="Color.Success" Variant="Variant.Filled" OnClick="Next" StartIcon="@Icons.Material.Filled.SkipNext">Next</MudButton>
+                      </div>
+        
+                      <br />
+                      <br />
+
+
+            </div>
+
+
+
+            <div class="@div2"> 
+                <br />
+                <br />
+                <br />
+
+                <MudText GutterBottom="true"  Typo="Typo.h6">Buttons to open all shop products?</MudText>
+
+                <br />
+                <br />
+
+                <div class="container">
+                    <div class="row">
+                        <div class="col-2">
+                            <Counter Image="images/fig.png"  />
+                        </div>
+                        <div class="col-2">
+                            <MudIconButton Color="Color.Dark"  Icon="@Icons.Material.Filled.OpenInFull"></MudIconButton>
+                        </div>
+                        <div class="col-8">
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <br />
+                <br />
+
+                <MudText GutterBottom="true" Typo="Typo.h6">Use these buttons to navigate the app</MudText>
+
+
+                <br />
+                <br />
+
+                <div class="container" >
+                    <div class="row">
+                        <div class="col-3">
+                            <MudFab   Icon="@Icons.Material.Outlined.ArrowBack" Color="Color.Dark"  >Hide</MudFab> <br />
+                            <MudText Align="Align.Center" Typo="Typo.body2">Back</MudText>
+   
+                        </div>
+
+
+                        <div class="col-3">
+                            <MudFab   Icon="@Icons.Material.Outlined.CompareArrows" Color="Color.Success"  ></MudFab> <br />
+                            <MudText Align="Align.Center" Typo="Typo.body2">Show Compare</MudText>
+   
+                        </div>
+
+                        <div class="col-3">
+                            <MudFab   Icon="@Icons.Material.Outlined.HideSource" Color="Color.Dark"  ></MudFab> <br />
+                            <MudText Align="Align.Center" Typo="Typo.body2">Hide Compare</MudText>
+   
+                        </div>
+
+
+                         <div class="col-3">
+                            <MudFab   Icon="@Icons.Material.Outlined.ClearAll" Color="Color.Dark"  ></MudFab> <br />
+                            <MudText Align="Align.Center" Typo="Typo.body2">Clear Compare</MudText>
+   
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+
+
+                 <br />
+                      <br />
+
+                      <div style="text-align: center;">
+                          <MudButton Color="Color.Success" Variant="Variant.Filled" OnClick="Finished" StartIcon="@Icons.Material.Filled.SkipNext">Finish</MudButton>
+                      </div>
+
+
+
+
+            </div>
+
+
+
+
+        </div>
+
+    </div>
+
+</div>
+
+
 
 
 @code {
-    private WeatherForecast[] forecasts;
 
-    protected override async Task OnInitializedAsync()
-    {
-        forecasts = await ForecastService.GetForecastAsync(DateTime.Now);
+
+
+    string div1 = "";
+    string div2 = "dis";
+
+
+    void Next(){
+        div1 = "dis";
+        div2 = "";
+        StateHasChanged();
     }
+    void Finished()
+    {
+        _nav.NavigateTo("/",true);
+    }
+
 }

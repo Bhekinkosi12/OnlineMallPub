@@ -10,6 +10,7 @@
 @inject IJSRuntime _jsrun
 
 
+
 @if(isItemSelected){
     <ProductPage Product="@selectedProduct" @bind-isSelected="isItemSelected" />
 }
@@ -235,48 +236,49 @@ else{
 
     private async Task<IEnumerable<string>> SearchAutoFill(string value)
     {
-        List<string> littleSEO = new List<string>();
+        List<string> littleSEO = new List<string>() { "Empty List"};
         if (string.IsNullOrEmpty(value))
         {
             return NameSuggests;
         }
 
 
-        try
+
+
+
+        var selectedItems = NameSuggests.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+        if (selectedItems != null)
         {
+            return selectedItems;
+        }
+        else
+        {
+            return littleSEO;
+        }
 
 
 
-            var selectedItems = NameSuggests.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
-            if (selectedItems != null)
-            {
-                return selectedItems;
-            }
-            else
-            {
-                return littleSEO;
-            }
+
+
+    }
+
+    private async void OnShare(string text)
+    {
+        try{
+
+            await _jsrun.InvokeVoidAsync("clipboardCopy.copyText",$"https://www.mzansigomall.co.za/product/{text}");
         }
         catch
         {
             
         }
-
-        
-         return littleSEO;
-
-    }
-
-     private async void OnShare(string text)
-    {
-       await _jsrun.InvokeVoidAsync("clipboardCopy.copyText",$"www.mzansigomall.co.za/product/{text}");
     }
 
     private void OnSearch()
     {
         try
         {
-
+            
 
             if (!string.IsNullOrEmpty(SearchValue))
             {
