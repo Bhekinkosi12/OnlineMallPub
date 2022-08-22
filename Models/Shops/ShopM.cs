@@ -49,7 +49,8 @@ namespace OnlineMall.Models.Shops
     {
         Success,
         Warning,
-        Error
+        Error,
+        Default
     }
 
 }

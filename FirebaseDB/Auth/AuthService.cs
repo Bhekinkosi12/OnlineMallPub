@@ -26,31 +26,23 @@ namespace OnlineMall.FirebaseDB.Auth
 
         private AuthenticationStateProvider _provider;
         private AuthStateService _authState;
-        public AuthService(ICookie cookie, AuthenticationStateProvider authProvider, ProtectedSessionStorage sessionStorage)
+        public AuthService(ICookie cookie, AuthenticationStateProvider authProvider)
         {
-            _authState = new AuthStateService(sessionStorage);
+            
             _provider = authProvider;
             _cookie = cookie;
 
 
-
+            _authState = (AuthStateService)_provider;
             
 
-
+            
             
             _auth = new FirebaseAuthProvider(new FirebaseConfig("AIzaSyADB3AtQ4iAxfsn7S2pIb5XqEKvjnZONuM"));
 
 
 
-            try
-            {
-
-            Init();
-            }
-            catch
-            {
-                _client = new FirebaseClient("https://mzansigomall-default-rtdb.firebaseio.com");
-            }
+         
 
 
 
@@ -102,44 +94,50 @@ namespace OnlineMall.FirebaseDB.Auth
 
         public async Task<bool> AutoLogin()
         {
+
+
+
+            if(User != null)
+            {
+                return true;
+            }
+
+
             try
             {
 
-               var Retoken = await _cookie.GetValue("user");
-                if (!string.IsNullOrEmpty(Retoken))
-                {
-                    FirebaseAuth firebaseAuth = new FirebaseAuth()
-                    {
-                         RefreshToken = Retoken
-                    };
-                    var res = await _auth.RefreshAuthAsync(firebaseAuth);
+               
+                    var res = await _authState.GetAuthenticationStateAsync();
                     
                     if(res != null)
                     {
-                        
-                        var itemResp = (await _client.Child("user").OnceAsync<UserM>()).FirstOrDefault(x => x.Object.Email == res.User.Email);
+                    var selected = res.User.Claims.FirstOrDefault(x => x.Type == "Authentication");
+
+                    if (selected != null)
+                    {
+
+
+
+
+                        var itemResp = (await _client.Child("user").OnceAsync<UserM>()).FirstOrDefault(x => x.Object.Email == selected.Value);
 
                         if (itemResp != null)
                         {
                             User = itemResp.Object;
-                            
+
                         }
                         else
                         {
                             return false;
                         }
-
-                        await _cookie.SetValue("user", res.RefreshToken, 1);
+                    }
+                        
                     }
                     else
                     {
                         return false;
                     }
-                }
-                else
-                {
-                    return false;
-                }
+              
 
                 return await Task.FromResult(true);
             }
@@ -153,12 +151,13 @@ namespace OnlineMall.FirebaseDB.Auth
         {
             try
             {
+                Init();
                 var response = await _auth.SignInWithEmailAndPasswordAsync(email, password);
                 
                 
                 if(response != null)
                 {
-
+                    
 
                     UserM user = new UserM()
                     {
@@ -166,7 +165,17 @@ namespace OnlineMall.FirebaseDB.Auth
                         Token = response.FirebaseToken,
                         Role = "User"
                     };
+
+
+                    try
+                    {
                     await _authState.UpdateAuthState(user);
+
+                    }
+                    catch(Exception ex)
+                    {
+                        string msg = ex.Message;
+                    }
 
 
 
@@ -190,6 +199,7 @@ namespace OnlineMall.FirebaseDB.Auth
                             Token = response.FirebaseToken,
                             Role = itemResp.Object.Role
                         };
+
                         await _authState.UpdateAuthState(user_);
 
 
@@ -218,6 +228,7 @@ namespace OnlineMall.FirebaseDB.Auth
         {
             try
             {
+                Init();
                 var response = await _auth.CreateUserWithEmailAndPasswordAsync(email, password,username,true);
                 
                 if(response != null)
@@ -268,6 +279,7 @@ namespace OnlineMall.FirebaseDB.Auth
         {
             try
             {
+                Init();
                 var itemResp = (await _client.Child("user").OnceAsync<UserM>()).FirstOrDefault(x => x.Object.Id == user.Id);
 
                 if(itemResp != null)
@@ -287,6 +299,12 @@ namespace OnlineMall.FirebaseDB.Auth
             {
                 return false;
             }
+        }
+
+        public async Task Logout()
+        {
+            User = null;
+           await _authState.UpdateAuthState(null);
         }
 
         

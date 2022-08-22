@@ -46,7 +46,7 @@ else{
                             <div class="col-2">
                                 @if(i.Logo != null){
 
-                                <Counter Status="@i.ShopStatus"  Image="@i.Logo" ></Counter>
+                                <Counter Status="@i.ShopStatus" NavLink="shoppage" NavLinkId="@i.Id.ToString()" Image="@i.Logo" ></Counter>
                                 }
                             </div>
                             <div class="col-8">
@@ -498,6 +498,11 @@ else{
 
 }
 @code {
+
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationState { get; set; }
+
+
     List<ShopM> ShopListOBJ = new List<ShopM>();
     ShopM selectedShop = new ShopM();
     CompareDB compare = new CompareDB();
@@ -507,6 +512,10 @@ else{
     bool isItemSelected = false;
     bool isCompare = false;
 
+    string ShopIdToLink(int id)
+    {
+        return $"/shoppage/{id}";
+    }
 
     void OnShowCompare()
     {
@@ -514,9 +523,9 @@ else{
         StateHasChanged();
     }
 
-   private async void OnShare(string text)
+    private async void OnShare(string text)
     {
-       await _jsrun.InvokeVoidAsync("clipboardCopy.copyText",$"www.mzansigomall.co.za/product/{text}");
+        await _jsrun.InvokeVoidAsync("clipboardCopy.copyText",$"www.mzansigomall.co.za/product/{text}");
     }
 
     protected async override void OnInitialized()
@@ -524,7 +533,7 @@ else{
 
         base.OnInitialized();
         try{
-            
+
 
 
             var lists = await _shop.GetAllPublicAsync();
@@ -565,9 +574,14 @@ else{
 
     async void OnAddCart(ProductM product)
     {
+
+        var verified = await authenticationState;
+
         var user = _auth.User;
-        if(user != null)
+        if(verified.User != null)
         {
+           var isLog = await _auth.AutoLogin();
+
             if(user.Carts.Count != 0){
                 var selectedDefaultType = user.Carts.FirstOrDefault(x => x.CartName == "Default");
                 if(selectedDefaultType != null)

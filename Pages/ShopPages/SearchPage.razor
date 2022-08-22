@@ -249,11 +249,17 @@ else{
         var selectedItems = NameSuggests.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
         if (selectedItems != null)
         {
+            if(selectedItems.Count() != 0){
+
             return selectedItems;
+            }
+            else{
+                return littleSEO.ToArray();
+            }
         }
         else
         {
-            return littleSEO;
+            return littleSEO.ToArray();
         }
 
 

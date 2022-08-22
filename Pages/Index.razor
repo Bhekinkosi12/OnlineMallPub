@@ -8,9 +8,14 @@
 @inject NavigationManager _nav
 
 
+
+<AuthorizeView>
+<Authorizing></Authorizing>
+</AuthorizeView>
+
 <OnlineMall.Pages.ShopPages.ShopSplash></OnlineMall.Pages.ShopPages.ShopSplash>
 
-@if (isNew)
+@if (!isNew)
 {
     
     <OnlineMall.Pages.ShopPages.ShopList />
@@ -240,6 +245,21 @@ else
         }
 
         base.OnParametersSet();
+    }
+
+
+    protected override async void OnInitialized()
+    {
+       var respo = await _auth.AutoLogin();
+        var state = await authenticationState;
+
+        if(state.User == null)
+        {
+            isNew = true;
+            StateHasChanged();
+        }
+
+        base.OnInitialized();
     }
 
 

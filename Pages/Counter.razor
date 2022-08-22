@@ -1,22 +1,29 @@
 ﻿@page "/counter"
 
+@inject NavigationManager _nav
+
 @if (Status == ShopStatusM.Success)
 {
-    <MudBadge Color="Color.Success" Overlap="true" Bordered="true">
+    <MudBadge Color="Color.Success" Overlap="true" Bordered="true" OnClick="OnOpen">
         <MudAvatar Image="@Image" Size="Size.Medium" />
     </MudBadge>
 }else if (Status == ShopStatusM.Error)
 {
-    <MudBadge Color="Color.Error" Icon="@Icons.Material.Filled.Remove" Overlap="true" Bordered="true">
+    <MudBadge Color="Color.Error" Icon="@Icons.Material.Filled.Remove" OnClick="OnOpen" Overlap="true" Bordered="true">
         <MudAvatar Image="@Image" Size="Size.Medium" />
     </MudBadge>
 }
-else
+else if(Status == ShopStatusM.Warning)
 {
-    <MudBadge Color="Color.Warning" Icon="@Icons.Material.Filled.Looks" Overlap="true" Bordered="true">
+    <MudBadge Color="Color.Warning" Icon="@Icons.Material.Filled.Looks" OnClick="OnOpen" Overlap="true" Bordered="true">
         <MudAvatar Image="@Image" Size="Size.Medium" />
     </MudBadge>
-}  
+} 
+else{
+     <MudBadge Color="Color.Warning" Icon="@Icons.Material.Filled.Looks" OnClick="OnOpen" Overlap="true" Visible="false" Bordered="true">
+        <MudAvatar Image="@Image" Size="Size.Medium" />
+    </MudBadge>
+}
 
 @code {
 
@@ -25,6 +32,18 @@ else
 
     [Parameter]
     public string? Image { get; set; }
+
+    [Parameter]
+    public string? NavLinkId { get; set; }
+
+    [Parameter]
+    public string? NavLink { get; set; }
+
+    void OnOpen()
+    {
+
+        //_nav.NavigateTo($"/{NavLink}/{NavLinkId}",true);
+    }
 
     protected override void OnParametersSet()
     {

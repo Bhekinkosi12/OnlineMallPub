@@ -65,23 +65,25 @@ else
                 <br />
                 <br />
                 <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+                    <DataAnnotationsValidator />
                     <MudTextField T="string" Variant="Variant.Outlined" For="@(() => model.Name)" @bind-Value="model.Name" FullWidth="true" Label="Prefered Name" ></MudTextField>
                     <br />
                 <MudTextField T="string" Variant="Variant.Outlined" For="@(() => model.Email)" @bind-Value="model.Email" FullWidth="true" Label="Email" ></MudTextField>
                 <br />
-
-                <MudTextField T="string" FullWidth="true" For="@(() => model.Password)" @bind-Value="model.Password" Variant="Variant.Outlined" Label="Password" InputType="InputType.Password" ></MudTextField>
-                <MudTextField T="string" FullWidth="true" Variant="Variant.Outlined" For="@(() => model.RepeatPassword)" @bind-Value="model.RepeatPassword"  Label="Password Repeat" InputType="InputType.Password" ></MudTextField>
+                 <MudSlider T="double" @bind-Value="model.Credit.BudgetAverageAmount" Min="0" Max="40000" Step="500"  >Your Monthly average on stores : @model.Credit.BudgetAverageAmount </MudSlider>
+                   <br />
+                <MudTextField T="string" FullWidth="true" For="@(() => model.Password)" @bind-Value="model.Password" Variant="Variant.Outlined" Label="Password"  ></MudTextField>
+                <MudTextField T="string" FullWidth="true" Variant="Variant.Outlined" For="@(() => model.RepeatPassword)" @bind-Value="model.RepeatPassword"  Label="Password Repeat"  ></MudTextField>
 
 
                  <div style="text-align: center; margin: 60px 0 0 0;">
-                 <MudProgressCircular Color="Color.Success" Indeterminate="@isProcessSub"  />
+                 <MudProgressCircular Color="Color.Success" Indeterminate="@isProcessSub"  /> <br />
              <MudButton ButtonType="ButtonType.Submit"   Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Outlined.Send" >Create Account</MudButton>
              </div>
+             </EditForm>
               <div style="text-align: center; margin: 10px 0 0 0;">
                      <MudButton Variant="Variant.Outlined" OnClick="@(() => OnToLogin(true))" Size="Size.Small"  StartIcon="@Icons.Material.Outlined.Login" > Login </MudButton>
                      </div>
-             </EditForm>
 
             </div>
 
@@ -126,7 +128,8 @@ else
         }
         else
         {
-            var respo = await _auth.Signin(model.Email, model.Password, model.Name);
+
+            var respo = await _auth.Signin(model.Email, model.Password, model.Name,"User",model.Credit.BudgetAverageAmount);
             
 
             if (respo)
@@ -138,6 +141,9 @@ else
                 _snack.Add("Sign In Failed !", Severity.Info);
             }
         }
+
+        isProcessSub = false;
+        StateHasChanged();
     }
 
 

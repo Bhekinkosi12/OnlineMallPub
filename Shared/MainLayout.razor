@@ -1,4 +1,6 @@
 ﻿@inherits LayoutComponentBase
+@inject IAuthService _auth
+@inject NavigationManager _nav
 
 <MudThemeProvider @bind-IsDarkMode="isDarkTheme" />
 <MudDialogProvider />
@@ -8,10 +10,25 @@
     <MudAppBar Elevation="0">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
         <MudSpacer />
-        <MudIconButton Icon="@Icons.Material.Filled.DarkMode" Color="Color.Inherit"  Target="_blank" OnClick="@(() => ThemeToggle())" />
+    
              <MudIconButton Icon="@Icons.Material.Filled.Search" Color="Color.Inherit" Link="/search"  />
         <MudIconButton Icon="@Icons.Material.Filled.ShoppingCart" Color="Color.Inherit" Link="/cart" Target="_blank" />
-        <MudIconButton Icon="@Icons.Material.Filled.Person"  Color="Color.Inherit" Link="/user/profile" Target="_blank" />
+
+        <AuthorizeView>
+            <Authorized >
+                
+            <MudAvatar Image="@Image" Size="Size.Medium" @onclick="ToUser"  />
+            
+            </Authorized>
+            <NotAuthorized>
+
+              <MudIconButton Icon="@Icons.Material.Filled.Person"  Color="Color.Inherit" Link="/user/profile" Target="_blank" />
+            </NotAuthorized>
+            <Authorizing>
+                <MudProgressCircular Color="Color.Success" Indeterminate="true" />
+            </Authorizing>
+        </AuthorizeView>
+
         
     </MudAppBar>
     <MudDrawer @bind-Open="_drawerOpen" Elevation="1">
@@ -28,9 +45,14 @@
 </MudLayout>
 
 @code {
+
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationState { get; set; }
+
     bool _drawerOpen = false;
     bool isDarkTheme = false;
     string _class = "";
+    string Image = "";
 
     void DrawerToggle()
     {
@@ -39,9 +61,66 @@
 
     }
 
-    void ThemeToggle()
+    void ToUser()
     {
-        isDarkTheme = !isDarkTheme;
+        _nav.NavigateTo("/user/profile",true);
+    }
+
+    protected override async void OnAfterRender(bool firstRender)
+    {
+
+
+        if (firstRender)
+        {
+            var isLogged = await _auth.AutoLogin();
+        }
+
+        if(_auth.User != null)
+        {
+            ThemeToggle(_auth.User.IsDarkMode);
+            if (!string.IsNullOrEmpty(_auth.User.Image))
+            {
+                Image = _auth.User.Image;
+                StateHasChanged();
+            }
+            else
+            {
+                Image = "images/defaultuser.png";
+                StateHasChanged();
+            }
+        }
+
+
+
+
+
+
+
+        base.OnAfterRender(firstRender);
+    }
+
+    protected override Task OnInitializedAsync()
+    {
+          if(_auth.User != null)
+        {
+            ThemeToggle(_auth.User.IsDarkMode);
+            if (!string.IsNullOrEmpty(_auth.User.Image))
+            {
+                Image = _auth.User.Image;
+                StateHasChanged();
+            }
+            else
+            {
+                Image = "images/defaultuser.png";
+                StateHasChanged();
+            }
+        }
+        return base.OnInitializedAsync();
+    }
+
+    void ThemeToggle(bool isDark)
+    {
+        isDarkTheme = isDark;
         if(isDarkTheme){
             _class = "dark";
         }

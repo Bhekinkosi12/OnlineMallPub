@@ -19,5 +19,10 @@ namespace OnlineMall.Services.AuthService
         {
             throw new NotImplementedException();
         }
+
+        Task Logout()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

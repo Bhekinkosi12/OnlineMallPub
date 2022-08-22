@@ -10,17 +10,59 @@
 <div class="container page">
     <div class="row">
         <div class="col-lg-4 offset-lg-4">
+
+            @if (!user.IsDarkMode)
+            {
+                
+            <div style="text-align: end;" >
+                <MudIconButton  Icon="@Icons.Material.Filled.DarkMode" OnClick="@(() => UpdateThemeColor(true))" ></MudIconButton>
+                </div>
+            }
+            else
+            {
+                <div style="text-align: end;" >
+                <MudIconButton Icon="@Icons.Material.Filled.LightMode" OnClick="@(() => UpdateThemeColor(false))" ></MudIconButton>
+            </div>
+            }
+
             <div style="position: relative;">
                 <div  style="height: 150px; width: 150px; clip-path:circle(); position: absolute; margin-left: 50%; transform:translateX(-50%);">
                     <img src="@_Image" style="width: 100%; height: 100%;" />
                 </div>
 
             </div>
+
+             <div style="text-align: center; margin-top: 20px;">
+                 <MudProgressCircular Color="Color.Success" Indeterminate="@isProcess" />
+                 <br />
+                <label style="box-shadow: 0 2px 7px #4caf50; display: inline-flex; width: 150px; justify-content: space-around; border-radius: 2em; color: white; border: 2px solid; cursor: pointer; align-items: center; padding: 16px; background-color: #4caf50;" for="fileInput" >
+                   Change <MudIcon Icon="@Icons.Filled.CloudUpload" > </MudIcon>
+                </label>
+                <InputFile id="fileInput" OnChange="UploadF"  hidden multiple />
+            </div>
            
             <div>
                 <MudText Align="Align.Center" style="font-size: 21px;">@user.Name</MudText>
                 
             </div>
+            <div>
+                <MudText Align="Align.Center" style="font-size: 17px;">Average: @user.Credit.BudgetAverageAmount</MudText>
+                
+            </div>
+
+            <br />
+            <br />
+            <br />
+            <br />
+
+            <div>
+                <MudButton StartIcon="@Icons.Material.Filled.Logout" Color="Color.Error" Variant="Variant.Outlined" OnClick="Logout">Logout</MudButton>
+            </div>
+
+
+
+
+
 
 
         </div>
@@ -31,6 +73,10 @@
 
 
 @code {
+
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationState { get; set; }
+
     string _Image = "images/defaultuser.png";
     bool isProcess = false;
     StorageDB fstor = new StorageDB();
@@ -38,9 +84,35 @@
     UserM user = new UserM();
 
 
-
-    protected override void OnInitialized()
+    async void Logout()
     {
+        await _auth.Logout();
+
+    }
+
+
+    async void UpdateThemeColor(bool isDark)
+    {
+        try
+        {
+            user.IsDarkMode = isDark;
+            var response = await _auth.UpDateUser(user);
+
+            StateHasChanged();
+
+
+        }
+        catch
+        {
+            
+        }
+    }
+
+
+    protected override async void OnInitialized()
+    {
+
+
         if(_auth.User != null)
         {
             user = _auth.User;
@@ -50,11 +122,33 @@
         }
         else
         {
-           // _nav.NavigateTo("/auth");
+            var authLog = await _auth.AutoLogin();
+            if (authLog)
+            {
+                if (_auth.User != null)
+                {
+                    user = _auth.User;
+                    _Image = user.Image;
+
+                    StateHasChanged();
+                }
+                else
+                {
+                    _nav.NavigateTo("/auth",true);
+                }
+            }
+            else
+            {
+                
+            _nav.NavigateTo("/auth",true);
+            }
+
         }
 
         base.OnInitialized();
     }
+
+
 
 
 

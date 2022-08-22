@@ -1,6 +1,6 @@
 ﻿@page "/shoppage"
-@page "/shoppage/id"
-@page "/shoppage/id/productid"
+@page "/shoppage/{id}"
+@page "/shoppage/{id}/{productid}"
 
 @using OnlineMall.FirebaseDB
 @inject ISnackbar _snack
@@ -119,6 +119,9 @@ else{
 
 
 @code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationState { get; set; }
+
     [Parameter]
     public string? Productid {get; set;}
 
@@ -157,11 +160,11 @@ else{
     CompareDB compare = new CompareDB();
 
     ProductM selectedProduct = new ProductM();
-     
-   
-    
 
-     void OnOpenProduct(ProductM product){
+
+
+
+    void OnOpenProduct(ProductM product){
         selectedProduct = product;
         isItemSelected = true;
         StateHasChanged();
@@ -183,6 +186,7 @@ else{
     protected override async Task OnInitializedAsync()
     {
 
+        
             /*
         try{
 
@@ -241,6 +245,14 @@ else{
 
     async void OnAddCart(ProductM product)
     {
+
+
+         var authLog = _auth.AutoLogin();
+
+         var users = await authenticationState;
+
+
+
         var user = _auth.User;
         if(user != null)
         {
