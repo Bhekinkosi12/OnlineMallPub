@@ -31,6 +31,9 @@ namespace OnlineMall.Models.Users
         public double MGMBucks { get; set; }
         public CreditM Credit { get; set; }
         public List<CartM> Carts { get; set; }
+
+        public List<CartM> BudgetCart { get; set; }
+
         public bool IsDarkMode { get; set; } = false;
 
     }
